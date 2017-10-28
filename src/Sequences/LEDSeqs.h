@@ -9,6 +9,8 @@
 #define LEDSeqs_h
 
 #include "Solid.h"
+#include "Fade.h"
 #include "SoundPulse.h"
+#include "SoundFreq.h"
 
 #endif /* LEDSeqs_h */
