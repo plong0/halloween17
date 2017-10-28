@@ -21,16 +21,25 @@ namespace LEDSeqs {
             return "SoundPulse";
         }
         
+        void setAudioData(float* pulse){
+            currentPulse = pulse;
+        }
+        
     protected:
+        float* currentPulse;
+        
         void doUpdate() {
             ofColor color;
+
+            float trigger = 0.03;
             
-            int trigger = 24;
+            //cout << "AUDIO:" << getID() << " @ " << (*currentPulse) << endl;
+            
             if (config.find("trigger") != config.end()) {
-                trigger = stoi(config["trigger"]);
+                trigger = stof(config["trigger"]);
             }
             
-            if (updateTime % trigger == 0) {
+            if (*currentPulse >= trigger) {
                 color.r = stof(config["R2"]);
                 color.g = stof(config["G2"]);
                 color.b = stof(config["B2"]);
@@ -43,12 +52,11 @@ namespace LEDSeqs {
             
             for (int i=0; i < pixels.size(); i++) {
                 if (pixels[i]) {
-                  pixels[i]->setColor(color);
+                    pixels[i]->setColor(color);
                 }
             }
         }
     };
 }
-
 
 #endif /* SoundPulse_h */
