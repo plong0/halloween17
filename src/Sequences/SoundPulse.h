@@ -27,19 +27,18 @@ namespace LEDSeqs {
         
     protected:
         float* currentPulse;
+        float lastPulse = -1;
         
         void doUpdate() {
             ofColor color;
 
-            float trigger = 0.03;
-            
-            //cout << "AUDIO:" << getID() << " @ " << (*currentPulse) << endl;
+            float trigger = 0.0023;
             
             if (config.find("trigger") != config.end()) {
                 trigger = stof(config["trigger"]);
             }
             
-            if (*currentPulse >= trigger) {
+            if (lastPulse == -1 || abs(*currentPulse - lastPulse) >= trigger) {
                 color.r = stof(config["R2"]);
                 color.g = stof(config["G2"]);
                 color.b = stof(config["B2"]);
@@ -49,6 +48,8 @@ namespace LEDSeqs {
                 color.g = stof(config["G"]);
                 color.b = stof(config["B"]);
             }
+            
+            lastPulse = *currentPulse;
             
             for (int i=0; i < pixels.size(); i++) {
                 if (pixels[i]) {
