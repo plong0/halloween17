@@ -7,13 +7,17 @@
 
 #include "LEDSeqs.h"
 
-#define MIN_MODE 6
-#define MAX_MODE 6
+#define MIN_MODE 2
+#define MAX_MODE 2
 
 #define DOUBLES_MIRROR 1
 
 #define AUDIO_DEVICE 3
 #define AUDIO_MONO 1
+
+#define MODE_TIMEOUT 5000
+
+#include "ofxFft.h"
 
 class ofApp : public ofBaseApp{
     private:
@@ -29,9 +33,13 @@ class ofApp : public ofBaseApp{
         struct {
             bool enabled = false;
             
+            vector <float> mono;
             vector <float> left;
             vector <float> right;
             
+            bool useNormalization;
+            
+            int bufferSize = 256;
             int bufferCounter;
             
             float smoothedVol;
@@ -43,6 +51,26 @@ class ofApp : public ofBaseApp{
             float scaledRight;
             
             ofSoundStream stream;
+            
+            struct {
+                bool enabled = false;
+                ofMutex soundMutex;
+                
+                int bufferSize = 256;
+                int channelCount = 16;
+                
+                ofxFft* fft;
+                vector<float> bins;
+                
+                /**
+                ofxEasyFft fft;
+                int bufferSize = 256;
+                int channelCount = 16;
+                 */
+                
+                vector<float>* channels;
+                vector<float> lastBuffer;
+            } FFT;
         } Audio;
     
         int cMode;
@@ -53,7 +81,9 @@ class ofApp : public ofBaseApp{
         int prevMode();
     
         void initAudio(int deviceID=-1);
+        void initAudioFFT();
         void updateAudio();
+        void normalizeAudio(vector<float>& data);
         bool toggleAudio();
 
 	public:

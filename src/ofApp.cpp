@@ -8,12 +8,12 @@ void ofApp::setup(){
     fc.setup("127.0.0.1", 7890);
     
     penta1.setup(&fc, 0, 16);
-    penta1.setLayout(100, 100, 300);
+    penta1.setLayout(150, 100, 300);
     ledRender.addPixels(penta1.getPixels());
     
 #ifdef DOUBLES_MIRROR
     penta2.setup(&fc, 128, 16);
-    penta2.setLayout(500, 100, 300);
+    penta2.setLayout(550, 100, 300);
     ledRender.addPixels(penta2.getPixels());
 #endif
     
@@ -26,7 +26,9 @@ void ofApp::setup(){
     initAudio();
 #endif
     
-    scrollModes = true;
+    initAudioFFT();
+    
+    scrollModes = (MIN_MODE != MAX_MODE);
     
     setMode(MIN_MODE);
 }
@@ -48,10 +50,12 @@ void ofApp::exit(){
 void ofApp::update(){
     if (scrollModes) {
         int cTime = ofGetElapsedTimeMillis();
-        if ((cTime - modeSetTime) > 5000) {
+        if ((cTime - modeSetTime) > MODE_TIMEOUT) {
             nextMode();
         }
     }
+    
+    updateAudio();
 
     sequences.update();
     
@@ -76,14 +80,11 @@ void ofApp::initAudio(int deviceID){
     Audio.enabled = true;
     Audio.stream.printDeviceList();
     
-    //if you want to set a different device id
-    //soundStream.setDeviceID(0); //bear in mind the device id corresponds to all audio devices, including  input-only and output-only devices.
+    if (deviceID >= 0) {
+        Audio.stream.setDeviceID(deviceID);
+    }
     
-    int bufferSize = 256;
-    
-    Audio.left.assign(bufferSize, 0.0);
-    Audio.right.assign(bufferSize, 0.0);
-    
+    Audio.bufferSize = 256;
     Audio.bufferCounter    = 0;
     Audio.smoothedVol     = 0.0;
     Audio.smoothedLeft     = 0.0;
@@ -92,14 +93,25 @@ void ofApp::initAudio(int deviceID){
     Audio.scaledLeft        = 0.0;
     Audio.scaledRight        = 0.0;
     
-    if (deviceID >= 0) {
-        Audio.stream.setDeviceID(deviceID);
-    }
+    Audio.mono.assign(Audio.bufferSize, 0.0);
+    Audio.left.assign(Audio.bufferSize, 0.0);
+    Audio.right.assign(Audio.bufferSize, 0.0);
+    
 #if AUDIO_MONO
-    Audio.stream.setup(this, 0, 1, 44100, bufferSize, 4);
+    Audio.stream.setup(this, 0, 1, 44100, Audio.bufferSize, 4);
 #else
-    Audio.stream.setup(this, 0, 2, 44100, bufferSize, 4);
+    Audio.stream.setup(this, 0, 2, 44100, Audio.bufferSize, 4);
 #endif
+}
+
+void ofApp::initAudioFFT(){
+    Audio.FFT.enabled = true;
+    
+    Audio.FFT.channels = new vector<float>;
+    
+    Audio.FFT.fft = ofxFft::create(Audio.FFT.bufferSize, OF_FFT_WINDOW_HAMMING, OF_FFT_BASIC);
+    
+    Audio.FFT.bins.resize(Audio.FFT.fft->getBinSize());
 }
 
 //--------------------------------------------------------------
@@ -108,6 +120,71 @@ void ofApp::updateAudio(){
         Audio.scaledVol = ofMap(Audio.smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
         Audio.scaledLeft = ofMap(Audio.smoothedLeft, 0.0, 0.17, 0.0, 1.0, true);
         Audio.scaledRight = ofMap(Audio.smoothedRight, 0.0, 0.17, 0.0, 1.0, true);
+    }
+        
+    if (Audio.FFT.enabled) {
+        Audio.FFT.fft->setSignal(&Audio.mono[0]);
+        float* curFft = Audio.FFT.fft->getAmplitude();
+        copy(curFft, curFft + Audio.FFT.fft->getBinSize(), Audio.FFT.bins.begin());
+        normalizeAudio(Audio.FFT.bins);
+        
+        //for (int i=0; i < Audio.FFT.bins.size(); i++) {
+        //    cout << "AUDIO #" << i << " @ " << Audio.FFT.bins[i] << endl;
+        //}
+        
+        Audio.FFT.channels->clear();
+        Audio.FFT.channels->assign(Audio.FFT.channelCount, 0.0);
+        
+        for (int i=0; i < Audio.FFT.bins.size(); i++) {
+            float bufferDiff = Audio.FFT.bins[i];
+            
+            if (Audio.FFT.lastBuffer.size() > i) {
+                //cout << "AUDIO #" << i << " @ " << buffer[i] << " - " << Audio.FFT.lastBuffer[i] << " => " << abs(buffer[i] - Audio.FFT.lastBuffer[i]) << endl;
+                //bufferDiff = abs(Audio.FFT.bins[i] - Audio.FFT.lastBuffer[i]);
+            }
+            
+            //float bufferValue = buffer[i];
+            float bufferValue = bufferDiff;
+            
+            int channel = i / Audio.FFT.channelCount;
+            if (channel < Audio.FFT.channels->size()) {
+                int subChannel = i % Audio.FFT.channelCount;
+                //cout << "AUDIO (" << i << " / " << buffer.size() << ") [" << channel << "," << subChannel << "] @ " << buffer[i] << endl;
+                if (bufferValue > Audio.FFT.channels->at(channel)) {
+                    (*Audio.FFT.channels)[channel] = bufferValue;
+                 //   cout << "AUDIO BUFFER [" << channel << ", " << subChannel << "] => " << bufferValue << endl;
+                }
+                
+                
+                /**
+                 if (buffer[i] > Audio.FFT.channels->at(channel)) {
+                 (*Audio.FFT.channels)[channel] = buffer[i];
+                 //(*Audio.FFT.channels)[channel] += buffer[i];
+                 //(*Audio.FFT.channels)[channel] /= 2.0;
+                 }*/
+            }
+        }
+        
+        //for (int i=0; i < Audio.FFT.channels->size(); i++) {
+          //  cout << "AUDIO BUFFER [" << i << "] => " << Audio.FFT.channels->at(i) << endl;
+        //}
+        
+        Audio.FFT.lastBuffer = Audio.FFT.bins;
+        
+    }
+}
+
+void ofApp::normalizeAudio(vector<float>& data) {
+    if(Audio.useNormalization) {
+        float maxValue = 0;
+        for(int i = 0; i < data.size(); i++) {
+            if(abs(data[i]) > maxValue) {
+                maxValue = abs(data[i]);
+            }
+        }
+        for(int i = 0; i < data.size(); i++) {
+            data[i] /= maxValue;
+        }
     }
 }
 
@@ -123,9 +200,10 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
     //lets go through each sample and calculate the root mean square which is a rough way to calculate volume
 #if AUDIO_MONO
     for (int i = 0; i < bufferSize; i++){
-        Audio.left[i]     = input[i]*0.5;
-        Audio.right[i]    = input[i]*0.5;
-        
+        Audio.mono[i]     = input[i]*0.5;
+        Audio.left[i]     = Audio.mono[i];
+        Audio.right[i]    = Audio.mono[i];
+
         curLeft += Audio.left[i] * Audio.left[i];
         curRight += Audio.right[i] * Audio.right[i];
         
@@ -137,6 +215,7 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
     for (int i = 0; i < bufferSize; i++){
         Audio.left[i]     = input[i*2]*0.5;
         Audio.right[i]    = input[i*2+1]*0.5;
+        Audio.mono[i]     = (Audio.left[i] + Audio.right[i]) / 2.0;
         
         curLeft += Audio.left[i] * Audio.left[i];
         curRight += Audio.right[i] * Audio.right[i];
@@ -172,6 +251,62 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 //--------------------------------------------------------------
 bool ofApp::setMode(int mode) {
     if (mode == 0) {
+        sequences.reset();
+        
+        map<string, string> config;
+        config["R"] = "192";
+        config["G"] = "0";
+        config["B"] = "0";
+        sequences.add(new LEDSeqs::Solid("1.1", penta1.getPixels("P2"), config));
+        
+        
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.1", penta2.getPixels("P1"), config));
+#endif
+        
+        config["R"] = "192";
+        config["G"] = "0";
+        config["B"] = "192";
+        sequences.add(new LEDSeqs::Solid("1.2", penta1.getPixels("P4"), config));
+        
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.2", penta2.getPixels("P3"), config));
+#endif
+        
+        config["R"] = "0";
+        config["G"] = "192";
+        config["B"] = "0";
+        sequences.add(new LEDSeqs::Solid("1.3", penta1.getPixels("P3"), config));
+        
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.3", penta2.getPixels("P4"), config));
+#endif
+        
+        config["R"] = "0";
+        config["G"] = "192";
+        config["B"] = "192";
+        sequences.add(new LEDSeqs::Solid("1.4", penta1.getPixels("P1"), config));
+        
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.4", penta2.getPixels("P2"), config));
+#endif
+        
+        config["R"] = "0";
+        config["G"] = "0";
+        config["B"] = "192";
+        sequences.add(new LEDSeqs::Solid("1.5", penta1.getPixels("P5"), config));
+        
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.5", penta2.getPixels("P5"), config));
+#endif
+        
+        sequences.start();
+        cMode = 4;
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 1) {
         sequences.reset();
         
         map<string, string> config;
@@ -213,234 +348,75 @@ bool ofApp::setMode(int mode) {
         
         return true;
     }
-    else if (mode == 1) {
-        sequences.reset();
-        
-        map<string, string> config;
-        config["R"] = "0";
-        config["G"] = "64";
-        config["B"] = "192";
-        
-        sequences.add(new LEDSeqs::Solid("1.*", penta1.getPixels("all"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.*", penta2.getPixels("all"), config));
-#endif
-        
-        sequences.start();
-        cMode = 1;
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
     else if (mode == 2) {
-        sequences.reset();
-        
         map<string, string> config;
-        config["R"] = "192";
-        config["G"] = "64";
-        config["B"] = "0";
-        
-        sequences.add(new LEDSeqs::Solid("1.*", penta1.getPixels("all"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.*", penta2.getPixels("all"), config));
-#endif
-        
-        sequences.start();
-        cMode = 2;
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
-    else if(mode == 3) {
-        sequences.reset();
-        
-        map<string, string> config;
-        config["R"] = "192";
+        config["R"] = "32";
         config["G"] = "0";
         config["B"] = "0";
-        sequences.add(new LEDSeqs::Solid("1.O", penta1.getPixels("outline"), config));
-        
+        sequences.add(new LEDSeqs::Solid("1.*", penta1.getPixels("*"), config));
 #ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.O", penta2.getPixels("outline"), config));
+        sequences.add(new LEDSeqs::Solid("2.*", penta2.getPixels("*"), config));
 #endif
         
-        config["R"] = "0";
-        config["G"] = "0";
-        config["B"] = "192";
-        sequences.add(new LEDSeqs::Solid("1.C", penta1.getPixels("center"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.C", penta2.getPixels("center"), config));
-#endif
-
-        sequences.start();
-        cMode = 3;
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
-    else if(mode == 4) {
-        sequences.reset();
-        
-        map<string, string> config;
-        config["R"] = "192";
-        config["G"] = "0";
-        config["B"] = "0";
-        sequences.add(new LEDSeqs::Solid("1.1", penta1.getPixels("P1"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.1", penta2.getPixels("P1"), config));
-#endif
-        
-        config["R"] = "192";
-        config["G"] = "0";
-        config["B"] = "192";
-        sequences.add(new LEDSeqs::Solid("1.2", penta1.getPixels("P2"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.2", penta2.getPixels("P2"), config));
-#endif
-        
-        config["R"] = "0";
-        config["G"] = "192";
-        config["B"] = "0";
-        sequences.add(new LEDSeqs::Solid("1.3", penta1.getPixels("P3"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.3", penta2.getPixels("P3"), config));
-#endif
-        
-        config["R"] = "0";
-        config["G"] = "192";
-        config["B"] = "192";
-        sequences.add(new LEDSeqs::Solid("1.4", penta1.getPixels("P4"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.4", penta2.getPixels("P4"), config));
-#endif
-        
-        config["R"] = "0";
-        config["G"] = "0";
-        config["B"] = "192";
-        sequences.add(new LEDSeqs::Solid("1.5", penta1.getPixels("P5"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.5", penta2.getPixels("P5"), config));
-#endif
-        
-        sequences.start();
-        cMode = 4;
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
-    else if(mode == 5) {
-        sequences.reset();
-        
-        map<string, string> config;
-        config["R"] = "0";
-        config["G"] = "0";
-        config["B"] = "192";
-        sequences.add(new LEDSeqs::Solid("1.O", penta1.getPixels("outline"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.O", penta2.getPixels("outline"), config));
-#endif
-        
-        config["R"] = "192";
-        config["G"] = "0";
-        config["B"] = "0";
-        sequences.add(new LEDSeqs::Solid("1.C", penta1.getPixels("center"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.C", penta2.getPixels("center"), config));
-#endif
-        
-        sequences.start();
-        cMode = 5;
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
-    else if(mode == 6) {
-        sequences.reset();
-        
-        LEDSeqs::SoundPulse* newSequence;
-        map<string, string> config;
-        /**
-        config["R"] = "0";
-        config["G"] = "0";
-        config["B"] = "192";
-        
+        config.clear();
+        config["R1"] = "32";
+        config["G1"] = "0";
+        config["B1"] = "0";
         config["R2"] = "192";
         config["G2"] = "0";
-        config["B2"] = "0";
-         */
-        
-        config["R"] = "0";
-        config["G"] = "192";
-        config["B"] = "0";
-        
-        config["R2"] = "128";
-        config["G2"] = "0";
-        config["B2"] = "192";
-        
-        config["trigger"] = "0.03";
-        
+        config["B2"] = "128";
+        config["startDelay"] = "500";
+        config["fadeTime"] = "2000";
+        config["resetDelay"] = "5500";
+        sequences.add(new LEDSeqs::Fade("1.CA", penta1.getPixels("center"), config));
 #ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::SoundPulse("1.O", penta1.getPixels("outline"), config);
-        newSequence->setAudioData(&Audio.smoothedLeft);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::SoundPulse("2.O", penta2.getPixels("outline"), config);
-        newSequence->setAudioData(&Audio.smoothedRight);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::SoundPulse("1.O", penta1.getPixels("outline"), config);
-        newSequence->setAudioData(&Audio.smoothedVol);
-        sequences.add(newSequence);
+        sequences.add(new LEDSeqs::Fade("2.CA", penta2.getPixels("center"), config));
 #endif
         
-        //config["trigger"] = "0.25";
-        /**
-        config["R"] = "192";
-        config["G"] = "0";
-        config["B"] = "0";
-        
+        config["R1"] = "192";
+        config["G1"] = "0";
+        config["B1"] = "128";
         config["R2"] = "0";
-        config["G2"] = "0";
+        config["G2"] = "128";
         config["B2"] = "192";
-         */
-        config["R"] = "128";
-        config["G"] = "0";
-        config["B"] = "192";
+        config["startDelay"] = "2500";
+        config["fadeTime"] = "1000";
+        config["resetDelay"] = "4500";
         
-        config["R2"] = "0";
+        sequences.add(new LEDSeqs::Fade("1.CB", penta1.getPixels("center"), config));
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Fade("2.CB", penta2.getPixels("center"), config));
+#endif
+        
+        config["R1"] = "0";
+        config["G1"] = "128";
+        config["B1"] = "192";
+        config["R2"] = "192";
         config["G2"] = "192";
         config["B2"] = "0";
-        
+        config["startDelay"] = "3500";
+        config["fadeTime"] = "1000";
+        config["resetDelay"] = "2500";
+        sequences.add(new LEDSeqs::Fade("1.CB", penta1.getPixels("center"), config));
 #ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::SoundPulse("1.C", penta1.getPixels("center"), config);
-        newSequence->setAudioData(&Audio.smoothedLeft);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::SoundPulse("2.C", penta2.getPixels("center"), config);
-        newSequence->setAudioData(&Audio.smoothedRight);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::SoundPulse("1.C", penta1.getPixels("center"), config);
-        newSequence->setAudioData(&Audio.smoothedVol);
-        sequences.add(newSequence);
+        sequences.add(new LEDSeqs::Fade("2.CB", penta2.getPixels("center"), config));
 #endif
         
-        sequences.start();
-        cMode = 6;
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
+        config["R1"] = "192";
+        config["G1"] = "192";
+        config["B1"] = "0";
+        config["R2"] = "32";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        config["startDelay"] = "4500";
+        config["fadeTime"] = "500";
+        config["resetDelay"] = "1000";
+        sequences.add(new LEDSeqs::Fade("1.CB", penta1.getPixels("center"), config));
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Fade("2.CB", penta2.getPixels("center"), config));
+#endif
     }
+    
     return false;
 }
 
