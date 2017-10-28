@@ -21,6 +21,7 @@ public:
     
     void start(bool forceRestart=false);
     void stop();
+    void restart();
     void update();
     
     bool isRunning();
@@ -32,6 +33,7 @@ protected:
     int startTime;
     int updateTime;
     int currentTime();
+    int timeElapsed();
     
     virtual void doUpdate()=0;
 };
