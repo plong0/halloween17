@@ -10,8 +10,8 @@
 
 #include "LEDSeqs.h"
 
-#define MIN_MODE 2
-#define MAX_MODE 2
+#define MIN_MODE 0.0
+#define MAX_MODE 2.0
 
 #define DOUBLES_MIRROR 1
 
@@ -37,8 +37,21 @@ class ofApp : public ofBaseApp{
     
         float* activeSetting = NULL;
         float* activeSettingAdjust = NULL;
-        float settingAdjustDec = 1;
+        float settingAdjustDec;
+        float settingAdjustOne = 1.0;
+        float settingAdjustTen = 10.0;
+        float settingAdjustHundred = 100.0;
     
+        float cModeSetting;
+    
+    float minMode = 0;
+    float maxMode = 0;
+    float modeTimeout = 1000;
+    float cMode;
+    bool cycleModes;
+    
+    int modeSetTime;
+
         struct {
             bool enabled = false;
             
@@ -80,13 +93,13 @@ class ofApp : public ofBaseApp{
             } FFT;
 #endif
         } Audio;
-    
-        int cMode;
-        int modeSetTime;
-        bool scrollModes;
-        bool setMode(int mode=0);
-        int nextMode();
-        int prevMode();
+
+        bool setMode(float mode=0);
+        float nextMode();
+        float prevMode();
+        bool toggleModeCycling();
+        float adjustMinMode(float adj=1.0);
+        float adjustMaxMode(float adj=1.0);
     
 #ifdef AUDIO_ENABLED
         void initAudio(int deviceID=-1);

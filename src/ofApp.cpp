@@ -32,8 +32,12 @@ void ofApp::setup(){
 #endif
 #endif
     
-    scrollModes = (MIN_MODE != MAX_MODE);
-    setMode(MIN_MODE);
+    minMode = MIN_MODE;
+    maxMode = MAX_MODE;
+    modeTimeout = MODE_TIMEOUT;
+    
+    cycleModes = (minMode != maxMode);
+    setMode(minMode);
 }
 
 //--------------------------------------------------------------
@@ -51,9 +55,9 @@ void ofApp::exit(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    if (scrollModes) {
+    if (cycleModes) {
         int cTime = ofGetElapsedTimeMillis();
-        if ((cTime - modeSetTime) > MODE_TIMEOUT) {
+        if ((cTime - modeSetTime) > (int)modeTimeout) {
             nextMode();
         }
     }
@@ -79,14 +83,50 @@ void ofApp::draw(){
     ledRender.draw();
     
     stringstream str;
+    int cY = 550;
+    int lineSpace = 16;
+    
+    str << (activeSetting == &cMode ? "*":" ") << " Active Mode: " << (int)cMode;
+    ofDrawBitmapString(str.str(), 100, cY);
+    cY += lineSpace;
+    str.str("");
+    str.clear();
+    
+    str << "  Mode Cycling: ";
+    if (!cycleModes) {
+        str << "OFF";
+    }
+    else {
+        str << (activeSetting == &minMode ? "*":" ") << "Min: " << (int)minMode << "  " << (activeSetting == &maxMode ? "*":" ") << "Max:" << (int)maxMode;
+    }
+    ofDrawBitmapString(str.str(), 100, cY);
+    cY += lineSpace;
+    str.str("");
+    str.clear();
+    
+    if (cycleModes) {
+        str << (activeSetting == &modeTimeout ? "*":" ") << " Mode Time: " << (int)modeTimeout;
+        ofDrawBitmapString(str.str(), 100, cY);
+        cY += lineSpace;
+        str.str("");
+        str.clear();
+    }
+    else {
+        cY += lineSpace;
+    }
+    
+
 #ifdef AUDIO_ENABLED
+    cY += lineSpace;
     str << (activeSetting == &Audio.pulseResponse ? "*":" ") << " Pulse Response: " << Audio.pulseResponse;
-    ofDrawBitmapString(str.str(), 100, 550);
+    ofDrawBitmapString(str.str(), 100, cY);
+    cY += lineSpace;
     str.str("");
     str.clear();
     
     str << (activeSetting == &Audio.pulseResponseAdjust ? "*":" ") << " Pulse Response Adjust: " << Audio.pulseResponseAdjust;
-    ofDrawBitmapString(str.str(), 100, 568);
+    ofDrawBitmapString(str.str(), 100, cY);
+    cY += lineSpace;
     str.str("");
     str.clear();
 #endif
@@ -271,8 +311,8 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 #endif
 
 //--------------------------------------------------------------
-bool ofApp::setMode(int mode) {
-    if (mode == 0) {
+bool ofApp::setMode(float mode) {
+    if (mode == 0.0) {
         sequences.reset();
         
         map<string, string> config;
@@ -323,12 +363,12 @@ bool ofApp::setMode(int mode) {
 #endif
         
         sequences.start();
-        cMode = 0;
+        cMode = mode;
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
     }
-    else if (mode == 1) {
+    else if (mode == 1.0) {
         sequences.reset();
         
         map<string, string> config;
@@ -365,12 +405,12 @@ bool ofApp::setMode(int mode) {
 #endif
         
         sequences.start();
-        cMode = 1;
+        cMode = mode;
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
     }
-    else if (mode == 2) {
+    else if (mode == 2.0) {
         map<string, string> config;
         config["R"] = "32";
         config["G"] = "0";
@@ -499,7 +539,7 @@ bool ofApp::setMode(int mode) {
 #endif
         
         sequences.start();
-        cMode = 2;
+        cMode = mode;
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
@@ -508,23 +548,56 @@ bool ofApp::setMode(int mode) {
     return false;
 }
 
-int ofApp::nextMode() {
-    if (cMode >= MAX_MODE) {
-        setMode(MIN_MODE);
+float ofApp::nextMode() {
+    if (cMode >= maxMode) {
+        setMode(minMode);
     }
     else {
-        setMode(cMode + 1);
+        setMode(cMode + 1.0);
     }
     return cMode;
 }
-int ofApp::prevMode() {
-    if (cMode <= MIN_MODE) {
-        setMode(MAX_MODE);
+float ofApp::prevMode() {
+    if (cMode <= minMode) {
+        setMode(maxMode);
     }
     else {
-        setMode(cMode - 1);
+        setMode(cMode - 1.0);
     }
     return cMode;
+}
+
+bool ofApp::toggleModeCycling() {
+    cycleModes = !cycleModes;
+}
+
+float ofApp::adjustMinMode(float adj) {
+    float newMinMode = minMode + adj;
+    if (newMinMode < MIN_MODE) {
+        newMinMode = MIN_MODE;
+    }
+    else if (newMinMode > maxMode) {
+        newMinMode = maxMode;
+    }
+    minMode = newMinMode;
+    if (cMode < minMode) {
+        setMode(minMode);
+    }
+    return minMode;
+}
+float ofApp::adjustMaxMode(float adj) {
+    float newMaxMode = maxMode + adj;
+    if (newMaxMode > MAX_MODE) {
+        newMaxMode = MAX_MODE;
+    }
+    else if (newMaxMode < minMode) {
+        newMaxMode = minMode;
+    }
+    maxMode = newMaxMode;
+    if (cMode > maxMode) {
+        setMode(maxMode);
+    }
+    return maxMode;
 }
 
 //--------------------------------------------------------------
@@ -545,6 +618,30 @@ void ofApp::keyPressed(int key){
         activeSetting = &Audio.pulseResponseAdjust;
         activeSettingAdjust = &settingAdjustDec;
     }
+    else if (key == 'm') {
+        activeSetting = &cMode;
+    }
+    else if (key == 'M') {
+        toggleModeCycling();
+    }
+    else if (key == 'n') {
+        activeSetting = &modeTimeout;
+        activeSettingAdjust = &settingAdjustHundred;
+    }
+    else if (key == 'b') {
+        activeSetting = &minMode;
+    }
+    else if (key == 'B') {
+        activeSetting = &maxMode;
+    }
+    if (activeSetting == &modeTimeout) {
+        if (key == OF_KEY_UP) {
+            *activeSetting += *activeSettingAdjust;
+        }
+        else if (key == OF_KEY_DOWN) {
+            *activeSetting -= *activeSettingAdjust;
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -554,6 +651,18 @@ void ofApp::keyReleased(int key){
             if (activeSettingAdjust == &settingAdjustDec) {
                 *activeSetting *= 10.0;
             }
+            else if (activeSetting == &cMode) {
+                nextMode();
+            }
+            else if (activeSetting == &minMode) {
+                adjustMinMode(1.0);
+            }
+            else if (activeSetting == &maxMode) {
+                adjustMaxMode(1.0);
+            }
+            else if (activeSetting == &modeTimeout) {
+                // do nothing - it's handled in mousePressed
+            }
             else {
                 *activeSetting += *activeSettingAdjust;
             }
@@ -562,8 +671,23 @@ void ofApp::keyReleased(int key){
             if (activeSettingAdjust == &settingAdjustDec) {
                 *activeSetting /= 10.0;
             }
+            else if (activeSetting == &cMode) {
+                prevMode();
+            }
+            else if (activeSetting == &minMode) {
+                adjustMinMode(-1.0);
+            }
+            else if (activeSetting == &maxMode) {
+                adjustMaxMode(-1.0);
+            }
+            else if (activeSetting == &modeTimeout) {
+                // do nothing - it's handled in mousePressed
+            }
             else {
                 *activeSetting -= *activeSettingAdjust;
+                if (*activeSetting < 0) {
+                    *activeSetting == 0;
+                }
             }
         }
     }
