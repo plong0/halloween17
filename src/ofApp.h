@@ -5,6 +5,9 @@
 #include "ledLayoutRenderer.h"
 #include "ledSequenceRunner.h"
 
+#define AUDIO_ENABLED 1
+#define AUDIO_FFT_ENABLED 1
+
 #include "LEDSeqs.h"
 
 #define MIN_MODE 2
@@ -13,11 +16,13 @@
 #define DOUBLES_MIRROR 1
 
 //#define AUDIO_DEVICE 3
-//#define AUDIO_MONO 1
+//#define AUDIO_MONO true
 
 #define MODE_TIMEOUT 5000
 
+#ifdef AUDIO_FFT_ENABLED
 #include "ofxFft.h"
+#endif
 
 class ofApp : public ofBaseApp{
     private:
@@ -80,11 +85,14 @@ class ofApp : public ofBaseApp{
         int nextMode();
         int prevMode();
     
+#ifdef AUDIO_ENABLED
         void initAudio(int deviceID=-1);
+#ifdef AUDIO_FFT_ENABLED
         void initAudioFFT();
+#endif
         void updateAudio();
         void normalizeAudio(vector<float>& data);
-        bool toggleAudio();
+#endif
 
 	public:
 		void setup();

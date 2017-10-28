@@ -20,16 +20,19 @@ void ofApp::setup(){
     // initFrameBuffer at end of setup (after all LED pixels are added)
     fc.initFrameBuffer();
 
+#ifdef AUDIO_ENABLED
 #ifdef AUDIO_DEVICE
     initAudio(AUDIO_DEVICE);
 #else
     initAudio();
 #endif
-    
+
+#ifdef AUDIO_FFT_ENABLED
     initAudioFFT();
+#endif
+#endif
     
     scrollModes = (MIN_MODE != MAX_MODE);
-    
     setMode(MIN_MODE);
 }
 
@@ -55,7 +58,9 @@ void ofApp::update(){
         }
     }
     
+#ifdef AUDIO_ENABLED
     updateAudio();
+#endif
 
     sequences.update();
     
@@ -74,7 +79,7 @@ void ofApp::draw(){
     ledRender.draw();
 }
 
-
+#ifdef AUDIO_ENABLED
 //--------------------------------------------------------------
 void ofApp::initAudio(int deviceID){
     Audio.enabled = true;
@@ -104,6 +109,7 @@ void ofApp::initAudio(int deviceID){
 #endif
 }
 
+#ifdef AUDIO_FFT_ENABLED
 void ofApp::initAudioFFT(){
     Audio.FFT.enabled = true;
     
@@ -113,6 +119,7 @@ void ofApp::initAudioFFT(){
     
     Audio.FFT.bins.resize(Audio.FFT.fft->getBinSize());
 }
+#endif
 
 //--------------------------------------------------------------
 void ofApp::updateAudio(){
@@ -121,7 +128,8 @@ void ofApp::updateAudio(){
         Audio.scaledLeft = ofMap(Audio.smoothedLeft, 0.0, 0.17, 0.0, 1.0, true);
         Audio.scaledRight = ofMap(Audio.smoothedRight, 0.0, 0.17, 0.0, 1.0, true);
     }
-        
+
+#ifdef AUDIO_FFT_ENABLED
     if (Audio.FFT.enabled) {
         Audio.FFT.fft->setSignal(&Audio.mono[0]);
         float* curFft = Audio.FFT.fft->getAmplitude();
@@ -170,8 +178,8 @@ void ofApp::updateAudio(){
         //}
         
         Audio.FFT.lastBuffer = Audio.FFT.bins;
-        
     }
+#endif
 }
 
 void ofApp::normalizeAudio(vector<float>& data) {
@@ -247,6 +255,7 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
     
     Audio.bufferCounter++;
 }
+#endif
 
 //--------------------------------------------------------------
 bool ofApp::setMode(int mode) {

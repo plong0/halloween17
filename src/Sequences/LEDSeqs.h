@@ -10,7 +10,12 @@
 
 #include "Solid.h"
 #include "Fade.h"
+
+#ifdef AUDIO_ENABLED
 #include "SoundPulse.h"
+#ifdef AUDIO_FFT_ENABLED
 #include "SoundFreq.h"
+#endif
+#endif
 
 #endif /* LEDSeqs_h */
