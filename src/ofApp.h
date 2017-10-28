@@ -35,6 +35,10 @@ class ofApp : public ofBaseApp{
     
         ledSequenceRunner sequences;
     
+        float* activeSetting = NULL;
+        float* activeSettingAdjust = NULL;
+        float settingAdjustDec = 1;
+    
         struct {
             bool enabled = false;
             
@@ -56,6 +60,9 @@ class ofApp : public ofBaseApp{
             float scaledRight;
             
             ofSoundStream stream;
+            
+            float pulseResponse = 0.0023;
+            float pulseResponseAdjust = 0.0001;
             
 #ifdef AUDIO_FFT_ENABLED
             struct {

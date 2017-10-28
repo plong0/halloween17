@@ -77,6 +77,19 @@ void ofApp::draw(){
     border.draw();
     
     ledRender.draw();
+    
+    stringstream str;
+#ifdef AUDIO_ENABLED
+    str << (activeSetting == &Audio.pulseResponse ? "*":" ") << " Pulse Response: " << Audio.pulseResponse;
+    ofDrawBitmapString(str.str(), 100, 550);
+    str.str("");
+    str.clear();
+    
+    str << (activeSetting == &Audio.pulseResponseAdjust ? "*":" ") << " Pulse Response Adjust: " << Audio.pulseResponseAdjust;
+    ofDrawBitmapString(str.str(), 100, 568);
+    str.str("");
+    str.clear();
+#endif
 }
 
 #ifdef AUDIO_ENABLED
@@ -516,12 +529,44 @@ int ofApp::prevMode() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if (key == OF_KEY_ESC) {
+        if (activeSetting != NULL) {
+            activeSetting = NULL;
+        }
+        if (activeSettingAdjust != NULL) {
+            activeSettingAdjust = NULL;
+        }
+    }
+    else if (key == 'a') {
+        activeSetting = &Audio.pulseResponse;
+        activeSettingAdjust = &Audio.pulseResponseAdjust;
+    }
+    else if (key == 'A') {
+        activeSetting = &Audio.pulseResponseAdjust;
+        activeSettingAdjust = &settingAdjustDec;
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-
+    if (activeSetting != NULL) {
+        if (key == OF_KEY_UP) {
+            if (activeSettingAdjust == &settingAdjustDec) {
+                *activeSetting *= 10.0;
+            }
+            else {
+                *activeSetting += *activeSettingAdjust;
+            }
+        }
+        else if (key == OF_KEY_DOWN) {
+            if (activeSettingAdjust == &settingAdjustDec) {
+                *activeSetting /= 10.0;
+            }
+            else {
+                *activeSetting -= *activeSettingAdjust;
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------
