@@ -6,7 +6,7 @@
 #include "ledSequenceRunner.h"
 
 #define AUDIO_ENABLED 1
-#define AUDIO_FFT_ENABLED 1
+//#define AUDIO_FFT_ENABLED 1
 
 #include "LEDSeqs.h"
 
