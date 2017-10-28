@@ -57,6 +57,7 @@ class ofApp : public ofBaseApp{
             
             ofSoundStream stream;
             
+#ifdef AUDIO_FFT_ENABLED
             struct {
                 bool enabled = false;
                 ofMutex soundMutex;
@@ -67,15 +68,10 @@ class ofApp : public ofBaseApp{
                 ofxFft* fft;
                 vector<float> bins;
                 
-                /**
-                ofxEasyFft fft;
-                int bufferSize = 256;
-                int channelCount = 16;
-                 */
-                
                 vector<float>* channels;
                 vector<float> lastBuffer;
             } FFT;
+#endif
         } Audio;
     
         int cMode;
