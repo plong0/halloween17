@@ -602,7 +602,7 @@ float ofApp::adjustMaxMode(float adj) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    if (key == OF_KEY_ESC) {
+    if (key == 'x') {
         if (activeSetting != NULL) {
             activeSetting = NULL;
         }
