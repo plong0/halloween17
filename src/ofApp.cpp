@@ -301,7 +301,7 @@ bool ofApp::setMode(int mode) {
 #endif
         
         sequences.start();
-        cMode = 4;
+        cMode = 0;
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
@@ -343,7 +343,7 @@ bool ofApp::setMode(int mode) {
 #endif
         
         sequences.start();
-        cMode = 0;
+        cMode = 1;
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
@@ -359,62 +359,128 @@ bool ofApp::setMode(int mode) {
 #endif
         
         config.clear();
-        config["R1"] = "32";
-        config["G1"] = "0";
-        config["B1"] = "0";
-        config["R2"] = "192";
-        config["G2"] = "0";
-        config["B2"] = "128";
-        config["startDelay"] = "500";
-        config["fadeTime"] = "2000";
-        config["resetDelay"] = "5500";
-        sequences.add(new LEDSeqs::Fade("1.CA", penta1.getPixels("center"), config));
+        
+        vector<LEDSeqs::Fade::FadeStep> steps;
+        steps.push_back({
+            ofColor(192, 0, 0),false,
+            500
+        });
+        steps.push_back({
+            ofColor(192, 0, 168),false,
+            500
+        });
+        
+        // fade to blue
+        steps.push_back({
+            ofColor(0, 0, 192),false,
+            500
+        });
+        // hold blue for 500ms
+        steps.push_back({
+            ofColor(0, 0, 192),false,
+            100
+        });
+        
+        // fade to black and set transparent
+        steps.push_back({
+            ofColor(0, 0, 0),true,
+            10
+        });
+        // hold transparency for 250ms
+        steps.push_back({
+            ofColor(0, 0, 0),true,
+            250
+        });
+        
+        // turn lights on at blue and hold for 250ms
+        steps.push_back({
+            ofColor(0, 0, 192),false,
+            0
+        });
+        steps.push_back({
+            ofColor(0, 0, 192),false,
+            250
+        });
+        // fade to green
+        steps.push_back({
+            ofColor(0, 192, 0),false,
+            250
+        });
+        // fade to yellow
+        steps.push_back({
+            ofColor(192, 192, 0),false,
+            250
+        });
+        // fade to red and hold for 250ms
+        steps.push_back({
+            ofColor(192, 0, 0),false,
+            250
+        });
+        steps.push_back({
+            ofColor(192, 0, 0),false,
+            100
+        });
+        // fade to cyan and enable transparency
+        steps.push_back({
+            ofColor(0, 255, 255),true,
+            10
+        });
+        // hold transparency for 500ms
+        steps.push_back({
+            ofColor(0, 0, 0),true,
+            500
+        });
+        
+        // turn lights on at green and hold for 500ms
+        steps.push_back({
+            ofColor(0, 255, 0),false,
+            0
+        });
+        steps.push_back({
+            ofColor(0, 255, 0),false,
+            500
+        });
+        
+        // blink green 60 times at 10ms strobes
+        for (int i=0; i < 60; i++) {
+            steps.push_back({
+                ofColor(0, 255, 0),false,
+                10
+            });
+            steps.push_back({
+                ofColor(0, 255, 0),true,
+                10
+            });
+        }
+        // finish pulsing on green
+        steps.push_back({
+            ofColor(0, 255, 0),false,
+            500
+        });
+        // fade out to darker green
+        steps.push_back({
+            ofColor(32, 128, 32),false,
+            150
+        });
+        // fade back to step 0
+        
+        LEDSeqs::Fade* newSequence;
+        
+        newSequence = new LEDSeqs::Fade("1.CA", penta1.getPixels("center"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
 #ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Fade("2.CA", penta2.getPixels("center"), config));
+        //sequences.add(new LEDSeqs::Fade("2.CA", penta2.getPixels("center"), config));
+        newSequence = new LEDSeqs::Fade("2.CA", penta2.getPixels("center"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
 #endif
         
-        config["R1"] = "192";
-        config["G1"] = "0";
-        config["B1"] = "128";
-        config["R2"] = "0";
-        config["G2"] = "128";
-        config["B2"] = "192";
-        config["startDelay"] = "2500";
-        config["fadeTime"] = "1000";
-        config["resetDelay"] = "4500";
+        sequences.start();
+        cMode = 2;
+        modeSetTime = ofGetElapsedTimeMillis();
         
-        sequences.add(new LEDSeqs::Fade("1.CB", penta1.getPixels("center"), config));
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Fade("2.CB", penta2.getPixels("center"), config));
-#endif
-        
-        config["R1"] = "0";
-        config["G1"] = "128";
-        config["B1"] = "192";
-        config["R2"] = "192";
-        config["G2"] = "192";
-        config["B2"] = "0";
-        config["startDelay"] = "3500";
-        config["fadeTime"] = "1000";
-        config["resetDelay"] = "2500";
-        sequences.add(new LEDSeqs::Fade("1.CB", penta1.getPixels("center"), config));
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Fade("2.CB", penta2.getPixels("center"), config));
-#endif
-        
-        config["R1"] = "192";
-        config["G1"] = "192";
-        config["B1"] = "0";
-        config["R2"] = "32";
-        config["G2"] = "0";
-        config["B2"] = "0";
-        config["startDelay"] = "4500";
-        config["fadeTime"] = "500";
-        config["resetDelay"] = "1000";
-        sequences.add(new LEDSeqs::Fade("1.CB", penta1.getPixels("center"), config));
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Fade("2.CB", penta2.getPixels("center"), config));
-#endif
+        return true;
     }
     
     return false;

@@ -12,8 +12,8 @@
 
 #define DOUBLES_MIRROR 1
 
-#define AUDIO_DEVICE 3
-#define AUDIO_MONO 1
+//#define AUDIO_DEVICE 3
+//#define AUDIO_MONO 1
 
 #define MODE_TIMEOUT 5000
 

@@ -11,6 +11,8 @@ ledSequence::ledSequence(string id, vector<ledPixel*> pixels, map<string, string
     this->id = id;
     this->pixels = pixels;
     this->config = config;
+    this->startTime = -1;
+    this->updateTime = -1;
     if (autoStart) {
         start();
     }
@@ -39,7 +41,7 @@ bool ledSequence::isRunning() {
     return (startTime != -1);
 }
 
-void ledSequence::start(bool forceRestart, int startTime) {
+bool ledSequence::start(bool forceRestart, int startTime) {
     if (isRunning() && forceRestart) {
         stop();
     }
@@ -48,17 +50,18 @@ void ledSequence::start(bool forceRestart, int startTime) {
             startTime = currentTime();
         }
         this->startTime = startTime;
-        //cout << "LEDSeq:" << getName() << " -> " << getID() << " Started @ " << startTime << endl;
+        return true;
     }
+    return false;
 }
 
-void ledSequence::stop() {
+bool ledSequence::stop() {
     startTime = -1;
     //cout << "LEDSeq:" << getName() << " -> " << getID() << " Stopped @ " << currentTime() << endl;
 }
 
-void ledSequence::restart() {
-    start(true);
+bool ledSequence::restart() {
+    return start(true);
 }
 
 void ledSequence::update() {
