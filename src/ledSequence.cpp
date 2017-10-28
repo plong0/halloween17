@@ -39,12 +39,15 @@ bool ledSequence::isRunning() {
     return (startTime != -1);
 }
 
-void ledSequence::start(bool forceRestart) {
+void ledSequence::start(bool forceRestart, int startTime) {
     if (isRunning() && forceRestart) {
         stop();
     }
     if (!isRunning()) {
-        startTime = currentTime();
+        if (startTime < 0) {
+            startTime = currentTime();
+        }
+        this->startTime = startTime;
         //cout << "LEDSeq:" << getName() << " -> " << getID() << " Started @ " << startTime << endl;
     }
 }

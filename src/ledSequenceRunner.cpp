@@ -14,9 +14,10 @@ ledSequenceRunner::~ledSequenceRunner() {
 }
 
 void ledSequenceRunner::start() {
+    int startTime = ofGetElapsedTimeMillis();
     for (set<ledSequence*>::iterator it = seqs.begin() ; it != seqs.end(); ++it) {
         if (*it) {
-            (*it)->start();
+            (*it)->start(false, startTime);
         }
     }
 }

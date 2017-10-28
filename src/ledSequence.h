@@ -19,7 +19,7 @@ public:
     virtual string getName()=0;
     string getID();
     
-    void start(bool forceRestart=false);
+    void start(bool forceRestart=false, int startTime=-1);
     void stop();
     void restart();
     void update();
