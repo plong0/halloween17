@@ -65,7 +65,10 @@ void ofApp::update(){
     if (cycleModes) {
         int cTime = ofGetElapsedTimeMillis();
         if ((cTime - modeSetTime) > (int)modeTimeout) {
-            nextMode();
+            modeReps--;
+            if (modeReps <= 0) {
+                nextMode();
+            }
         }
     }
     
@@ -376,8 +379,9 @@ bool ofApp::setMode(float mode) {
         sequences.add(new LEDSeqs::Solid("2.5", penta2.getPixels("P5"), config));
 #endif
         
-        sequences.start();
         cMode = mode;
+        modeReps = 1;
+        sequences.start();
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
@@ -439,14 +443,51 @@ bool ofApp::setMode(float mode) {
         sequences.add(newSequence);
 #endif
         
-        sequences.start();
         cMode = mode;
+        modeReps = 5;
+        sequences.start();
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
     }
     else if (mode == 2.0) {
-        // 2.0 - POINTS DEMO PATTERN
+        // 2.0 - WHITE STROBE
+        sequences.reset();
+        
+        LEDSeqs::Strobe* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "255";
+        config["G2"] = "255";
+        config["B2"] = "255";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("*"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("*"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("*"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 1;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 3.0) {
+        // 3.0 - POINTS DEMO PATTERN
         sequences.reset();
         
         map<string, string> config;
@@ -532,14 +573,15 @@ bool ofApp::setMode(float mode) {
         sequences.add(newSequence);
 #endif
 
-        sequences.start();
         cMode = mode;
+        modeReps = 7;
+        sequences.start();
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;
     }
-    else if (mode == 3.0) {
-        // 3.0 - STROBE
+    else if (mode == 4.0) {
+        // 4.0 - RED/BLUE STROBE
         sequences.reset();
         
         LEDSeqs::Strobe* newSequence;
@@ -589,8 +631,125 @@ bool ofApp::setMode(float mode) {
         sequences.add(newSequence);
 #endif
         
-        sequences.start();
         cMode = mode;
+        modeReps = 1;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 5.0) {
+        // 5.0 - BLUE STROBE
+        sequences.reset();
+        
+        LEDSeqs::Strobe* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "128";
+        config["G"] = "0";
+        config["B"] = "192";
+        
+        config["R2"] = "0";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        config["R"] = "0";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "128";
+        config["G2"] = "0";
+        config["B2"] = "192";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 1;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 6.0) {
+        // 6.0 - RED STROBE
+        sequences.reset();
+        
+        LEDSeqs::Strobe* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "192";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        config["R"] = "192";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "0";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 1;
+        sequences.start();
         modeSetTime = ofGetElapsedTimeMillis();
         
         return true;

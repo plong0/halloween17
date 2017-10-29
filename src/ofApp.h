@@ -11,7 +11,7 @@
 #include "LEDSeqs.h"
 
 #define MIN_MODE 0.0
-#define MAX_MODE 3.0
+#define MAX_MODE 6.0
 
 #define DOUBLES_MIRROR 1
 
@@ -53,6 +53,7 @@ class ofApp : public ofBaseApp{
     bool cycleModes;
     
     int modeSetTime;
+    int modeReps;
     
     float strobeSpeed = STROBE_SPEED;
 
