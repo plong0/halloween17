@@ -68,7 +68,7 @@ namespace LEDSeqs {
             if (currentStepIndex() >= steps.size()-1) {
                 return steps[0];
             }
-            return steps[cStep + 1];
+            return steps[currentStepIndex() + 1];
         }
         
         void doUpdate() {
