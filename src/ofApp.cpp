@@ -92,13 +92,13 @@ void ofApp::draw(){
     str.str("");
     str.clear();
     
-    str << "  Mode Cycling: ";
-    if (!cycleModes) {
-        str << "OFF";
-    }
-    else {
-        str << (activeSetting == &minMode ? "*":" ") << "Min: " << (int)minMode << "  " << (activeSetting == &maxMode ? "*":" ") << "Max:" << (int)maxMode;
-    }
+    str << " " << (activeSetting == &minMode ? "*":" ") << "Min: " << (int)minMode << "  " << (activeSetting == &maxMode ? "*":" ") << "Max: " << (int)maxMode;
+    ofDrawBitmapString(str.str(), 100, cY);
+    cY += lineSpace;
+    str.str("");
+    str.clear();
+    
+    str << "  Mode Cycling: " << (cycleModes ? "ON":"OFF");
     ofDrawBitmapString(str.str(), 100, cY);
     cY += lineSpace;
     str.str("");
@@ -313,6 +313,7 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 //--------------------------------------------------------------
 bool ofApp::setMode(float mode) {
     if (mode == 0.0) {
+        // 0.0 - POINTS DEMO PATTERN
         sequences.reset();
         
         map<string, string> config;
@@ -369,172 +370,59 @@ bool ofApp::setMode(float mode) {
         return true;
     }
     else if (mode == 1.0) {
+        // 1.0 - AUDIO PULSE
         sequences.reset();
         
+        LEDSeqs::SoundPulse* newSequence;
         map<string, string> config;
-        config["R"] = "255";
+        
+        config["R"] = "128";
         config["G"] = "0";
-        config["B"] = "0";
-
-        sequences.add(new LEDSeqs::Solid("1.1", penta1.getPixels("1"), config));
-        sequences.add(new LEDSeqs::Solid("1.2", penta1.getPixels("2"), config));
+        config["B"] = "192";
+        
+        config["R2"] = "192";
+        config["G2"] = "0";
+        config["B2"] = "0";
         
 #ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.1", penta2.getPixels("1"), config));
-        sequences.add(new LEDSeqs::Solid("2.2", penta2.getPixels("2"), config));
-#endif
-        
-        config["R"] = "255";
-        config["G"] = "255";
-        config["B"] = "0";
-        sequences.add(new LEDSeqs::Solid("1.3", penta1.getPixels("3"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.3", penta2.getPixels("3"), config));
-#endif
-        
-        config["R"] = "0";
-        config["G"] = "255";
-        config["B"] = "255";
-        sequences.add(new LEDSeqs::Solid("1.4", penta1.getPixels("4"), config));
-        sequences.add(new LEDSeqs::Solid("1.5", penta1.getPixels("5"), config));
-        
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.4", penta2.getPixels("4"), config));
-        sequences.add(new LEDSeqs::Solid("2.5", penta2.getPixels("5"), config));
-#endif
-        
-        sequences.start();
-        cMode = mode;
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
-    else if (mode == 2.0) {
-        map<string, string> config;
-        config["R"] = "32";
-        config["G"] = "0";
-        config["B"] = "0";
-        sequences.add(new LEDSeqs::Solid("1.*", penta1.getPixels("*"), config));
-#ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.*", penta2.getPixels("*"), config));
-#endif
-        
-        config.clear();
-        
-        vector<LEDSeqs::Fade::FadeStep> steps;
-        steps.push_back({
-            ofColor(192, 0, 0),false,
-            500
-        });
-        steps.push_back({
-            ofColor(192, 0, 168),false,
-            500
-        });
-        
-        // fade to blue
-        steps.push_back({
-            ofColor(0, 0, 192),false,
-            500
-        });
-        // hold blue for 500ms
-        steps.push_back({
-            ofColor(0, 0, 192),false,
-            100
-        });
-        
-        // fade to black and set transparent
-        steps.push_back({
-            ofColor(0, 0, 0),true,
-            10
-        });
-        // hold transparency for 250ms
-        steps.push_back({
-            ofColor(0, 0, 0),true,
-            250
-        });
-        
-        // turn lights on at blue and hold for 250ms
-        steps.push_back({
-            ofColor(0, 0, 192),false,
-            0
-        });
-        steps.push_back({
-            ofColor(0, 0, 192),false,
-            250
-        });
-        // fade to green
-        steps.push_back({
-            ofColor(0, 192, 0),false,
-            250
-        });
-        // fade to yellow
-        steps.push_back({
-            ofColor(192, 192, 0),false,
-            250
-        });
-        // fade to red and hold for 250ms
-        steps.push_back({
-            ofColor(192, 0, 0),false,
-            250
-        });
-        steps.push_back({
-            ofColor(192, 0, 0),false,
-            100
-        });
-        // fade to cyan and enable transparency
-        steps.push_back({
-            ofColor(0, 255, 255),true,
-            10
-        });
-        // hold transparency for 500ms
-        steps.push_back({
-            ofColor(0, 0, 0),true,
-            500
-        });
-        
-        // turn lights on at green and hold for 500ms
-        steps.push_back({
-            ofColor(0, 255, 0),false,
-            0
-        });
-        steps.push_back({
-            ofColor(0, 255, 0),false,
-            500
-        });
-        
-        // blink green 60 times at 10ms strobes
-        for (int i=0; i < 60; i++) {
-            steps.push_back({
-                ofColor(0, 255, 0),false,
-                10
-            });
-            steps.push_back({
-                ofColor(0, 255, 0),true,
-                10
-            });
-        }
-        // finish pulsing on green
-        steps.push_back({
-            ofColor(0, 255, 0),false,
-            500
-        });
-        // fade out to darker green
-        steps.push_back({
-            ofColor(32, 128, 32),false,
-            150
-        });
-        // fade back to step 0
-        
-        LEDSeqs::Fade* newSequence;
-        
-        newSequence = new LEDSeqs::Fade("1.CA", penta1.getPixels("center"), config);
-        newSequence->setFadeSteps(steps);
+        newSequence = new LEDSeqs::SoundPulse("1.O", penta1.getPixels("outline"), config);
+        newSequence->setTrigger(&Audio.pulseResponse);
+        newSequence->setAudioData(&Audio.smoothedLeft);
         sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::SoundPulse("2.O", penta2.getPixels("outline"), config);
+        newSequence->setTrigger(&Audio.pulseResponse);
+        newSequence->setAudioData(&Audio.smoothedRight);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::SoundPulse("1.O", penta1.getPixels("outline"), config);
+        newSequence->setTrigger(&Audio.pulseResponse);
+        newSequence->setAudioData(&Audio.smoothedVol);
+        sequences.add(newSequence);
+#endif
+        
+        config["R"] = "192";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "128";
+        config["G2"] = "0";
+        config["B2"] = "192";
+        
 #ifdef DOUBLES_MIRROR
-        //sequences.add(new LEDSeqs::Fade("2.CA", penta2.getPixels("center"), config));
-        newSequence = new LEDSeqs::Fade("2.CA", penta2.getPixels("center"), config);
-        newSequence->setFadeSteps(steps);
+        newSequence = new LEDSeqs::SoundPulse("1.C", penta1.getPixels("center"), config);
+        newSequence->setTrigger(&Audio.pulseResponse);
+        newSequence->setAudioData(&Audio.smoothedLeft);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::SoundPulse("2.C", penta2.getPixels("center"), config);
+        newSequence->setTrigger(&Audio.pulseResponse);
+        newSequence->setAudioData(&Audio.smoothedRight);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::SoundPulse("1.C", penta1.getPixels("center"), config);
+        newSequence->setTrigger(&Audio.pulseResponse);
+        newSequence->setAudioData(&Audio.smoothedVol);
         sequences.add(newSequence);
 #endif
         
@@ -544,6 +432,7 @@ bool ofApp::setMode(float mode) {
         
         return true;
     }
+    
     
     return false;
 }
@@ -618,21 +507,21 @@ void ofApp::keyPressed(int key){
         activeSetting = &Audio.pulseResponseAdjust;
         activeSettingAdjust = &settingAdjustDec;
     }
-    else if (key == 'm') {
+    else if (key == 'm' || key == 'M') {
         activeSetting = &cMode;
     }
-    else if (key == 'M') {
-        toggleModeCycling();
-    }
     else if (key == 'n') {
+        activeSetting = &minMode;
+    }
+    else if (key == 'N') {
+        activeSetting = &maxMode;
+    }
+    else if (key == 'b') {
         activeSetting = &modeTimeout;
         activeSettingAdjust = &settingAdjustHundred;
     }
-    else if (key == 'b') {
-        activeSetting = &minMode;
-    }
     else if (key == 'B') {
-        activeSetting = &maxMode;
+        toggleModeCycling();
     }
     if (activeSetting == &modeTimeout) {
         if (key == OF_KEY_UP) {

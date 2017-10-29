@@ -21,24 +21,28 @@ namespace LEDSeqs {
             return "SoundPulse";
         }
         
-        void setAudioData(float* pulse){
+        void setTrigger(float* trigger) {
+            this->trigger = trigger;
+        }
+        void setAudioData(float* pulse) {
             currentPulse = pulse;
         }
         
     protected:
-        float* currentPulse;
+        float* currentPulse = NULL;
+        float* trigger = NULL;
         float lastPulse = -1;
         
         void doUpdate() {
             ofColor color;
-
-            float trigger = 0.0023;
+            
+            float triggerValue = *trigger;
             
             if (config.find("trigger") != config.end()) {
-                trigger = stof(config["trigger"]);
+                triggerValue = stof(config["trigger"]);
             }
             
-            if (lastPulse == -1 || abs(*currentPulse - lastPulse) >= trigger) {
+            if (lastPulse == -1 || abs(*currentPulse - lastPulse) >= triggerValue) {
                 color.r = stof(config["R2"]);
                 color.g = stof(config["G2"]);
                 color.b = stof(config["B2"]);
