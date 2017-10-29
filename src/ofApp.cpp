@@ -69,6 +69,9 @@ void ofApp::update(){
             if (modeReps <= 0) {
                 nextMode();
             }
+            else {
+                modeSetTime = cTime;
+            }
         }
     }
     
@@ -102,6 +105,13 @@ void ofApp::draw(){
     str.str("");
     str.clear();
     
+    str << "  Mode Repetitions: " << modeReps;
+    ofDrawBitmapString(str.str(), 100, cY);
+    cY += lineSpace;
+    str.str("");
+    str.clear();
+    cY += lineSpace;
+    
     str << " " << (activeSetting == &minMode ? "*":" ") << "Min: " << (int)minMode << "  " << (activeSetting == &maxMode ? "*":" ") << "Max: " << (int)maxMode;
     ofDrawBitmapString(str.str(), 100, cY);
     cY += lineSpace;
@@ -124,6 +134,8 @@ void ofApp::draw(){
     else {
         cY += lineSpace;
     }
+    
+    cY += lineSpace;
     
     str << (activeSetting == &strobeSpeed ? "*":" ") << " Strobe Speed: " << (int)strobeSpeed;
     ofDrawBitmapString(str.str(), 100, cY);
@@ -839,11 +851,11 @@ void ofApp::keyPressed(int key){
         activeSetting = &maxMode;
     }
     else if (key == 'b') {
-        activeSetting = &modeTimeout;
-        activeSettingAdjust = &settingAdjustHundred;
+        toggleModeCycling();
     }
     else if (key == 'B') {
-        toggleModeCycling();
+        activeSetting = &modeTimeout;
+        activeSettingAdjust = &settingAdjustHundred;
     }
     else if (key == 's' || key == 'S') {
         activeSetting = &strobeSpeed;
@@ -861,6 +873,14 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+    if (key == '+') {
+        modeReps++;
+    }
+    else if (key == '-') {
+        if (modeReps > 1) {
+            modeReps--;
+        }
+    }
     if (activeSetting != NULL) {
         if (key == OF_KEY_UP) {
             if (activeSettingAdjust == &settingAdjustDec) {
