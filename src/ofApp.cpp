@@ -19,13 +19,19 @@ void ofApp::setup(){
     
     // initFrameBuffer at end of setup (after all LED pixels are added)
     fc.initFrameBuffer();
-
+    
 #ifdef AUDIO_ENABLED
-#ifdef AUDIO_DEVICE
-    initAudio(AUDIO_DEVICE);
-#else
-    initAudio();
-#endif
+    float audioDevice = AUDIO_DEVICE;
+    
+    vector<string>::iterator audioDev = find(arguments.begin(), arguments.end(), "--audio-device");
+    if (audioDev != arguments.end()) {
+        audioDev++;
+        if (audioDev != arguments.end()) {
+            audioDevice = stoi(*audioDev);
+            cout << "USING AUDIO DEVICE #" << audioDevice << endl;
+        }
+    }
+    initAudio(audioDevice);
 
 #ifdef AUDIO_FFT_ENABLED
     initAudioFFT();
@@ -38,6 +44,7 @@ void ofApp::setup(){
     
     cycleModes = (minMode != maxMode);
     setMode(minMode);
+    
 }
 
 //--------------------------------------------------------------

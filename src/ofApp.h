@@ -15,7 +15,7 @@
 
 #define DOUBLES_MIRROR 1
 
-//#define AUDIO_DEVICE 3
+#define AUDIO_DEVICE 0
 //#define AUDIO_MONO true
 
 #define MODE_TIMEOUT 5000
@@ -111,6 +111,8 @@ class ofApp : public ofBaseApp{
 #endif
 
 	public:
+        vector<string> arguments;
+    
 		void setup();
         void exit();
 		void update();
