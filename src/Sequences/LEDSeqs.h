@@ -10,6 +10,7 @@
 
 #include "Solid.h"
 #include "Fade.h"
+#include "Strobe.h"
 
 #ifdef AUDIO_ENABLED
 #include "SoundPulse.h"

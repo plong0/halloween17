@@ -11,9 +11,11 @@
 #include "LEDSeqs.h"
 
 #define MIN_MODE 0.0
-#define MAX_MODE 2.0
+#define MAX_MODE 3.0
 
 #define DOUBLES_MIRROR 1
+
+#define STROBE_SPEED 280.0
 
 #define AUDIO_DEVICE 0
 #define AUDIO_MONO true
@@ -51,6 +53,8 @@ class ofApp : public ofBaseApp{
     bool cycleModes;
     
     int modeSetTime;
+    
+    float strobeSpeed = STROBE_SPEED;
 
         struct {
             bool enabled = false;

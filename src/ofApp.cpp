@@ -122,6 +122,12 @@ void ofApp::draw(){
         cY += lineSpace;
     }
     
+    str << (activeSetting == &strobeSpeed ? "*":" ") << " Strobe Speed: " << (int)strobeSpeed;
+    ofDrawBitmapString(str.str(), 100, cY);
+    cY += lineSpace;
+    str.str("");
+    str.clear();
+    cY += lineSpace;
 
 #ifdef AUDIO_ENABLED
     cY += lineSpace;
@@ -532,6 +538,63 @@ bool ofApp::setMode(float mode) {
         
         return true;
     }
+    else if (mode == 3.0) {
+        // 3.0 - STROBE
+        sequences.reset();
+        
+        LEDSeqs::Strobe* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "128";
+        config["G"] = "0";
+        config["B"] = "192";
+        
+        config["R2"] = "192";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        config["R"] = "192";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "128";
+        config["G2"] = "0";
+        config["B2"] = "192";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        sequences.start();
+        cMode = mode;
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
     
     
     return false;
@@ -623,7 +686,11 @@ void ofApp::keyPressed(int key){
     else if (key == 'B') {
         toggleModeCycling();
     }
-    if (activeSetting == &modeTimeout) {
+    else if (key == 's' || key == 'S') {
+        activeSetting = &strobeSpeed;
+        activeSettingAdjust = &settingAdjustTen;
+    }
+    if (activeSetting == &modeTimeout || activeSetting == &strobeSpeed) {
         if (key == OF_KEY_UP) {
             *activeSetting += *activeSettingAdjust;
         }
@@ -652,6 +719,9 @@ void ofApp::keyReleased(int key){
             else if (activeSetting == &modeTimeout) {
                 // do nothing - it's handled in mousePressed
             }
+            else if (activeSetting == &strobeSpeed) {
+                // do nothing - it's handled in mousePressed
+            }
             else {
                 *activeSetting += *activeSettingAdjust;
             }
@@ -670,6 +740,9 @@ void ofApp::keyReleased(int key){
                 adjustMaxMode(-1.0);
             }
             else if (activeSetting == &modeTimeout) {
+                // do nothing - it's handled in mousePressed
+            }
+            else if (activeSetting == &strobeSpeed) {
                 // do nothing - it's handled in mousePressed
             }
             else {
