@@ -439,6 +439,99 @@ bool ofApp::setMode(float mode) {
         
         return true;
     }
+    else if (mode == 2.0) {
+        // 2.0 - POINTS DEMO PATTERN
+        sequences.reset();
+        
+        map<string, string> config;
+        
+        int stepTime = 1000;
+        
+        vector<LEDSeqs::Fade::FadeStep> steps;
+        steps.push_back({
+            ofColor(192, 0, 0),false,
+            stepTime
+        });
+        steps.push_back({
+            ofColor(192, 128, 0),false,
+            stepTime
+        });
+        steps.push_back({
+            ofColor(0, 192, 64),false,
+            stepTime
+        });
+        steps.push_back({
+            ofColor(0, 0, 128),false,
+            stepTime
+        });
+        steps.push_back({
+            ofColor(128, 0, 192),false,
+            stepTime
+        });
+        
+        LEDSeqs::Fade* newSequence;
+        
+        // P1 (red)
+        config["startStep"] = "0";
+        newSequence = new LEDSeqs::Fade("1.1", penta1.getPixels("P2"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Fade("2.1", penta2.getPixels("P1"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#endif
+        
+        // P2 (purple)
+        config["startStep"] = "1";
+        newSequence = new LEDSeqs::Fade("1.2", penta1.getPixels("P4"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Fade("2.2", penta2.getPixels("P3"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#endif
+        
+        // P3 (blue)
+        config["startStep"] = "2";
+        newSequence = new LEDSeqs::Fade("1.5", penta1.getPixels("P5"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Fade("2.5", penta2.getPixels("P5"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#endif
+
+        // P4 (green)
+        config["startStep"] = "3";
+        newSequence = new LEDSeqs::Fade("1.3", penta1.getPixels("P3"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Fade("2.3", penta2.getPixels("P4"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#endif
+
+        // P5 (cyan)
+        config["startStep"] = "4";
+        newSequence = new LEDSeqs::Fade("1.4", penta1.getPixels("P1"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Fade("2.4", penta2.getPixels("P2"), config);
+        newSequence->setFadeSteps(steps);
+        sequences.add(newSequence);
+#endif
+
+        sequences.start();
+        cMode = mode;
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
     
     
     return false;

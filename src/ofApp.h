@@ -11,12 +11,12 @@
 #include "LEDSeqs.h"
 
 #define MIN_MODE 0.0
-#define MAX_MODE 1.0
+#define MAX_MODE 2.0
 
 #define DOUBLES_MIRROR 1
 
 #define AUDIO_DEVICE 0
-//#define AUDIO_MONO true
+#define AUDIO_MONO true
 
 #define MODE_TIMEOUT 5000
 
