@@ -15,7 +15,7 @@
 
 #define DOUBLES_MIRROR 1
 
-#define STROBE_SPEED 280.0
+#define STROBE_SPEED 600.0
 
 #define AUDIO_DEVICE 0
 #define AUDIO_MONO true
