@@ -819,11 +819,10 @@ bool ofApp::setMode(float mode) {
         config["R"] = "0.0";
         config["G"] = "0.0";
         config["B"] = "0.0";
-        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("1"), config));
+        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("*"), config));
         
         config.clear();
         config["speed"] = "2000.0";
-        config["length"] = "7";
         config["length"] = "80";
         //config["loopMode"] = "TAIL";
         
@@ -833,7 +832,7 @@ bool ofApp::setMode(float mode) {
             0.75
         });
         colors.push_back({
-            ofColor(0, 0, 0), false,
+            ofColor(0, 0, 0, 0), false,
             0.25
         });
 
@@ -848,7 +847,49 @@ bool ofApp::setMode(float mode) {
         
         return true;
     }
-    
+    else if (mode == 9.0) {
+        // 9.0 - TRACER with STROBE
+        sequences.reset();
+        
+        LEDSeqs::Tracer* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0.0";
+        config["G"] = "0.0";
+        config["B"] = "0.0";
+        config["R2"] = "128";
+        config["G2"] = "0";
+        config["B2"] = "192";
+        LEDSeqs::Strobe* newStrobe = new LEDSeqs::Strobe("1.*-strobe", penta1.getPixels("*"), config);
+        newStrobe->setSpeed(&strobeSpeed);
+        sequences.add(newStrobe);
+        
+        config.clear();
+        config["speed"] = "2000.0";
+        config["length"] = "80";
+        //config["loopMode"] = "TAIL";
+        
+        vector<LEDSeqs::Tracer::ColorStep> colors;
+        colors.push_back({
+            ofColor(255, 0, 0, 192), false,
+            0.75
+        });
+        colors.push_back({
+            ofColor(0, 0, 0, 0), false,
+            0.25
+        });
+        
+        newSequence = new LEDSeqs::Tracer("1.*", penta1.getPixels("*"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+        
+        cMode = mode;
+        modeReps = 5;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
     
     return false;
 }

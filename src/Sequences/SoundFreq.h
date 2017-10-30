@@ -46,8 +46,9 @@ namespace LEDSeqs {
             color.r = stof(config["R"]);
             color.g = stof(config["G"]);
             color.b = stof(config["B"]);
-            
-            
+            if (config.find("A") != config.end()) {
+                color.a = stof(config["A"]);
+            }
             
             if (channel < fftData->size()) {
                 float currentPulse = fftData->at(channel);
@@ -61,6 +62,9 @@ namespace LEDSeqs {
                     color.r = stof(config["R2"]);
                     color.g = stof(config["G2"]);
                     color.b = stof(config["B2"]);
+                    if (config.find("A2") != config.end()) {
+                        color.a = stof(config["A2"]);
+                    }
                 }
                 
                 /**

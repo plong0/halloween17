@@ -77,10 +77,11 @@ namespace LEDSeqs {
                 ofColor color1 = colors[stepIndex].color;
                 if ((stepIndex+1) < colors.size()) {
                     ofColor color2 = colors[stepIndex+1].color;
-                    result.r = color1.r + (float)(color2.r - color1.r)*((percent-stepPercent)/colors[stepIndex].percent);
-                    result.g = color1.g + (float)(color2.g - color1.g)*((percent-stepPercent)/colors[stepIndex].percent);
-                    result.b = color1.b + (float)(color2.b - color1.b)*((percent-stepPercent)/colors[stepIndex].percent);
-                    result.a = 255;
+                    float colorPercent = ((percent-stepPercent)/colors[stepIndex].percent);
+                    result.r = color1.r + (float)(color2.r - color1.r)*colorPercent;
+                    result.g = color1.g + (float)(color2.g - color1.g)*colorPercent;
+                    result.b = color1.b + (float)(color2.b - color1.b)*colorPercent;
+                    result.a = color1.a + (float)(color2.a - color1.a)*colorPercent;
                 }
                 else {
                     result = color1;

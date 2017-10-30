@@ -27,6 +27,9 @@ namespace LEDSeqs {
             color.r = stof(config["R"]);
             color.g = stof(config["G"]);
             color.b = stof(config["B"]);
+            if (config.find("A") != config.end()) {
+                color.a = stof(config["A"]);
+            }
             for (int i=0; i < pixels.size(); i++) {
                 if (pixels[i]) {
                     pixels[i]->setColor(color);

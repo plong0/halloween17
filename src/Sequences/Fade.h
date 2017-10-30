@@ -94,6 +94,7 @@ namespace LEDSeqs {
                         color.r = step.color.r + (float)(step2.color.r - step.color.r) * stepPercent;
                         color.g = step.color.g + (float)(step2.color.g - step.color.g) * stepPercent;
                         color.b = step.color.b + (float)(step2.color.b - step.color.b) * stepPercent;
+                        color.a = step.color.a + (float)(step2.color.a - step.color.a) * stepPercent;
                         setColor = true;
                     }
                 }
