@@ -75,17 +75,18 @@ namespace LEDSeqs {
                     }
                 }
                 ofColor color1 = colors[stepIndex].color;
+                ofColor color2;
                 if ((stepIndex+1) < colors.size()) {
-                    ofColor color2 = colors[stepIndex+1].color;
-                    float colorPercent = ((percent-stepPercent)/colors[stepIndex].percent);
-                    result.r = color1.r + (float)(color2.r - color1.r)*colorPercent;
-                    result.g = color1.g + (float)(color2.g - color1.g)*colorPercent;
-                    result.b = color1.b + (float)(color2.b - color1.b)*colorPercent;
-                    result.a = color1.a + (float)(color2.a - color1.a)*colorPercent;
+                    color2 = colors[stepIndex+1].color;
                 }
                 else {
-                    result = color1;
+                    color2 = color1;
                 }
+                float colorPercent = ((percent-stepPercent)/colors[stepIndex].percent);
+                result.r = color1.r + (float)(color2.r - color1.r)*colorPercent;
+                result.g = color1.g + (float)(color2.g - color1.g)*colorPercent;
+                result.b = color1.b + (float)(color2.b - color1.b)*colorPercent;
+                result.a = color1.a + (float)(color2.a - color1.a)*colorPercent;
             }
             return result;
         }

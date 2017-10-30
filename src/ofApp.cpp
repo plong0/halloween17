@@ -776,7 +776,7 @@ bool ofApp::setMode(float mode) {
         config["R"] = "0.0";
         config["G"] = "0.0";
         config["B"] = "0.0";
-        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("1"), config));
+        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("*"), config));
         
         config.clear();
         config["speed"] = "4000.0";
@@ -796,6 +796,10 @@ bool ofApp::setMode(float mode) {
         colors.push_back({
             ofColor(0, 0, 255), false,
             0.25
+        });
+        colors.push_back({
+            ofColor(0, 0, 0, 0), false,
+            1.0
         });
         
         newSequence = new LEDSeqs::Tracer("1.*", penta1.getPixels("*"), config);
