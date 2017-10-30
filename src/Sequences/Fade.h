@@ -25,7 +25,6 @@ namespace LEDSeqs {
         }
         
         bool start(bool forceRestart=false, int startTime=-1) {
-            cout << "Fade:Start" << endl;
             ledSequence::start(forceRestart, startTime);
             this->cStep = 0;
             this->cStepStartTime = this->startTime;
