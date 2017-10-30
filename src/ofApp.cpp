@@ -922,7 +922,7 @@ bool ofApp::setMode(float mode) {
         return true;
     }
     else if (mode == 10.0) {
-        // 10.0 - TRACER with STROBE
+        // 10.0 - TRACER with BACKGROUND
         sequences.reset();
         
         LEDSeqs::Tracer* newSequence;
@@ -930,17 +930,12 @@ bool ofApp::setMode(float mode) {
         
         config["R"] = "0.0";
         config["G"] = "0.0";
-        config["B"] = "0.0";
-        config["R2"] = "128";
-        config["G2"] = "0";
-        config["B2"] = "192";
-        LEDSeqs::Strobe* newStrobe;
-        newStrobe = new LEDSeqs::Strobe("1.Strobe", penta1.getPixels("*"), config);
-        newStrobe->setSpeed(&strobeSpeed);
+        config["B"] = "128.0";
+        LEDSeqs::Solid* newStrobe;
+        newStrobe = new LEDSeqs::Solid("1.BG", penta1.getPixels("*"), config);
         sequences.add(newStrobe);
 #ifdef DOUBLES_MIRROR
-        newStrobe = new LEDSeqs::Strobe("2.Strobe", penta2.getPixels("*"), config);
-        newStrobe->setSpeed(&strobeSpeed);
+        newStrobe = new LEDSeqs::Solid("2.BG", penta2.getPixels("*"), config);
         sequences.add(newStrobe);
 #endif
         
