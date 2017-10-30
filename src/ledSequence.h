@@ -19,9 +19,9 @@ public:
     virtual string getName()=0;
     string getID();
     
-    bool start(bool forceRestart=false, int startTime=-1);
-    bool stop();
-    bool restart();
+    virtual bool start(bool forceRestart=false, int startTime=-1);
+    virtual bool stop();
+    virtual bool restart();
     void update();
     
     bool isRunning();

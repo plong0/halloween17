@@ -24,6 +24,14 @@ namespace LEDSeqs {
             return "Fade";
         }
         
+        bool start(bool forceRestart=false, int startTime=-1) {
+            cout << "Fade:Start" << endl;
+            ledSequence::start(forceRestart, startTime);
+            this->cStep = 0;
+            this->cStepStartTime = this->startTime;
+            return isRunning();
+        }
+        
         void setFadeSteps(vector<FadeStep> steps) {
             this->steps = steps;
             this->cStep = 0;
@@ -34,13 +42,6 @@ namespace LEDSeqs {
         vector<FadeStep> steps;
         int cStep;
         int cStepStartTime;
-        
-        bool start(bool forceRestart=false, int startTime=-1) {
-            bool started = ledSequence::start(forceRestart, startTime);
-            this->cStep = 0;
-            this->cStepStartTime = this->startTime;
-            return started;
-        }
         
         FadeStep nextStep() {
             FadeStep& lastStep = steps[cStep];
