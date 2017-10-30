@@ -47,10 +47,21 @@ vector<ledPixel*> Pentagram::getPixels(string named, bool invert) {
     int offset1 = 6;
     int offset2 = 10;
     if (named == "" || named == "*" || named == "all") {
-        for (int i=0; i < 5; i++) {
-            vector<ledPixel*> stripPixels = strips[i]->getPixels();
-            result.insert(result.end(), stripPixels.begin(), stripPixels.end());
-        }
+        vector<ledPixel*> temp;
+        temp = getPixels("1");
+        result.insert(result.end(), temp.begin(), temp.end());
+        
+        temp = getPixels("2");
+        result.insert(result.end(), temp.begin(), temp.end());
+        
+        temp = getPixels("3");
+        result.insert(result.end(), temp.begin(), temp.end());
+        
+        temp = getPixels("4");
+        result.insert(result.end(), temp.begin(), temp.end());
+        
+        temp = getPixels("5", true);
+        result.insert(result.end(), temp.begin(), temp.end());
     }
     else if (named == "1") {
         result = strips[0]->getPixels();
