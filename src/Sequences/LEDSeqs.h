@@ -11,6 +11,7 @@
 #include "Solid.h"
 #include "Fade.h"
 #include "Strobe.h"
+#include "Tracer.h"
 
 #ifdef AUDIO_ENABLED
 #include "SoundPulse.h"

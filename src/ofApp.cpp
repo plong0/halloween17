@@ -766,6 +766,33 @@ bool ofApp::setMode(float mode) {
         
         return true;
     }
+    else if (mode == 7.0) {
+        // 7.0 - TRACER
+        sequences.reset();
+        
+        LEDSeqs::Tracer* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0.0";
+        config["G"] = "0.0";
+        config["B"] = "0.0";
+        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("1"), config));
+        
+        config.clear();
+        config["speed"] = "3200.0";
+        config["length"] = "1";
+        //config["loopMode"] = "TAIL";
+        
+        newSequence = new LEDSeqs::Tracer("1.1", penta1.getPixels("1"), config);
+        sequences.add(newSequence);
+        
+        cMode = mode;
+        modeReps = 1;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
     
     
     return false;
