@@ -11,7 +11,7 @@
 #include "LEDSeqs.h"
 
 #define MIN_MODE 7.0
-#define MAX_MODE 7.0
+#define MAX_MODE 8.0
 
 #define DOUBLES_MIRROR 1
 

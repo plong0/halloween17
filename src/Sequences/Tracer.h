@@ -17,6 +17,12 @@ namespace LEDSeqs {
         static const int LOOP_MODE_HEAD = 0;
         static const int LOOP_MODE_TAIL = 1;
         
+        typedef struct ColorStep {
+            ofColor color;
+            bool blank;
+            float percent;
+        } ColorStep;
+        
         Tracer(string id, vector<ledPixel*> pixels, map<string, string> config, bool autoStart=false) : ledSequence(id, pixels, config, autoStart){}
         ~Tracer(){}
         
@@ -26,12 +32,14 @@ namespace LEDSeqs {
         
         bool start(bool forceRestart=false, int startTime=-1) {
             ledSequence::start(forceRestart, startTime);
+            pixelStartTime.clear();
             head = 0;
             lastIncTime = (float)startTime;
+            pixelStartTime[0] = lastIncTime;
             return isRunning();
         }
         
-        void setColors(vector<ofColor> colors) {
+        void setColors(vector<ColorStep> colors) {
             this->colors = colors;
         }
         void setLength(float* length=NULL) {
@@ -42,13 +50,44 @@ namespace LEDSeqs {
         }
         
     protected:
-        vector<ofColor> colors;
+        vector<ColorStep> colors;
         float* length=NULL;
         float* speed=NULL;
         
         int head = -1;
         float lastIncTime = -1.0;
         int loopMode = LOOP_MODE_HEAD;
+        
+        map<int,int> pixelStartTime;
+        
+        ofColor getColor(vector<ColorStep> colors, float percent) {
+            ofColor result(0,0,0,0);
+            if (percent >= 0.0 && percent <= 1.0) {
+                float cPercent = 0.0;
+                int stepIndex = 0;
+                float stepPercent = 0;
+                for (int i=0; i < colors.size(); i++) {
+                    stepPercent = cPercent;
+                    cPercent += colors[i].percent;
+                    if (cPercent >= percent) {
+                        stepIndex = i;
+                        break;
+                    }
+                }
+                ofColor color1 = colors[stepIndex].color;
+                if ((stepIndex+1) < colors.size()) {
+                    ofColor color2 = colors[stepIndex+1].color;
+                    result.r = color1.r + (float)(color2.r - color1.r)*((percent-stepPercent)/colors[stepIndex].percent);
+                    result.g = color1.g + (float)(color2.g - color1.g)*((percent-stepPercent)/colors[stepIndex].percent);
+                    result.b = color1.b + (float)(color2.b - color1.b)*((percent-stepPercent)/colors[stepIndex].percent);
+                    result.a = 255;
+                }
+                else {
+                    result = color1;
+                }
+            }
+            return result;
+        }
         
         void doUpdate() {
             float lengthValue = 0.0;
@@ -91,36 +130,31 @@ namespace LEDSeqs {
                             head += lengthValue;
                         }
                     }
+                    
+                    int index = head;
+                    if (index >= pixels.size() && loopModeValue == LOOP_MODE_HEAD) {
+                        index %= pixels.size();
+                    }
+                    pixelStartTime[index] = lastIncTime;
                 }
                 
                 ofColor color(0, 192, 64);
-                for (int i=head; i > head-lengthValue && i >= 0; i--) {
+                int cTime = currentTime();
+                for (int i=0; i < pixels.size(); i++) {
                     int index = i;
                     if (index >= pixels.size() && loopModeValue == LOOP_MODE_HEAD) {
                         index %= pixels.size();
                     }
-                    if (i == head) {
-                        color.g = 255;
-                    }
-                    else {
-                        color.g = 192;
-                    }
-                    if (index < pixels.size() && pixels[index]) {
-                        pixels[index]->setColor(color);
-                    }
-                }
-                
-                /**
-                ofColor color(0, 255, 192);
-                color.r = stof(config["R"]);
-                color.g = stof(config["G"]);
-                color.b = stof(config["B"]);
-                for (int i=0; i < pixels.size(); i++) {
-                    if (pixels[i]) {
-                        pixels[i]->setColor(color);
+                    if (pixelStartTime.find(index) != pixelStartTime.end()) {
+                        float pixelAge = (float)(cTime - pixelStartTime[index]) / (incDelay*lengthValue);
+                        if (pixelAge <= 1.0) {
+                            color = getColor(colors, pixelAge);
+                            if (index < pixels.size() && pixels[index] && color.a > 0) {
+                                pixels[index]->setColor(color);
+                            }
+                        }
                     }
                 }
-                 */
             }
         }
     };

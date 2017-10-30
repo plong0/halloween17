@@ -779,15 +779,70 @@ bool ofApp::setMode(float mode) {
         sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("1"), config));
         
         config.clear();
-        config["speed"] = "3200.0";
-        config["length"] = "1";
+        config["speed"] = "4000.0";
+        //config["length"] = "7";
+        config["length"] = "80";
         //config["loopMode"] = "TAIL";
         
-        newSequence = new LEDSeqs::Tracer("1.1", penta1.getPixels("1"), config);
+        vector<LEDSeqs::Tracer::ColorStep> colors;
+        colors.push_back({
+            ofColor(192, 255, 0), false,
+            0.25
+        });
+        colors.push_back({
+            ofColor(0, 255, 255), false,
+            0.5
+        });
+        colors.push_back({
+            ofColor(0, 0, 255), false,
+            0.25
+        });
+        
+        newSequence = new LEDSeqs::Tracer("1.*", penta1.getPixels("*"), config);
+        newSequence->setColors(colors);
         sequences.add(newSequence);
         
         cMode = mode;
-        modeReps = 1;
+        modeReps = 5;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 8.0) {
+        // 8.0 - TRACER
+        sequences.reset();
+        
+        LEDSeqs::Tracer* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0.0";
+        config["G"] = "0.0";
+        config["B"] = "0.0";
+        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("1"), config));
+        
+        config.clear();
+        config["speed"] = "2000.0";
+        config["length"] = "7";
+        config["length"] = "80";
+        //config["loopMode"] = "TAIL";
+        
+        vector<LEDSeqs::Tracer::ColorStep> colors;
+        colors.push_back({
+            ofColor(192, 0, 0), false,
+            0.75
+        });
+        colors.push_back({
+            ofColor(0, 0, 0), false,
+            0.25
+        });
+
+        newSequence = new LEDSeqs::Tracer("1.*", penta1.getPixels("*"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+        
+        cMode = mode;
+        modeReps = 5;
         sequences.start();
         modeSetTime = ofGetElapsedTimeMillis();
         
