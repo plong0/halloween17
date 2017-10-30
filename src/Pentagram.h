@@ -17,7 +17,7 @@ public:
     Pentagram();
     ~Pentagram();
     
-    void setup(Fadecandy* fadecandy, int startAddress=0, int ledsPerSide=16);
+    void setup(Fadecandy* fadecandy, int startAddress=0, int ledsPerSide=16, bool mirror=false);
     void reset();
     
     vector<ledPixel*> getPixels(string named="*", bool invert=false);
@@ -33,11 +33,8 @@ protected:
     Fadecandy* fadecandy;
     int startAddress;
     int ledsPerSide;
+    bool mirror;
     vector<ledStrip*> strips;
-    vector<int> stripMap;
-    
-    
-    
 };
 
 #endif /* Pentagram_h */

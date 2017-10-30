@@ -12,7 +12,7 @@ void ofApp::setup(){
     ledRender.addPixels(penta1.getPixels());
     
 #ifdef DOUBLES_MIRROR
-    penta2.setup(&fc, 128, 16);
+    penta2.setup(&fc, 128, 16, true);
     penta2.setLayout(550, 100, 300);
     ledRender.addPixels(penta2.getPixels());
 #endif
@@ -397,10 +397,18 @@ bool ofApp::setMode(float mode) {
         sequences.reset();
         
         map<string, string> config;
+        config["R"] = "0";
+        config["G"] = "0";
+        config["B"] = "0";
+        sequences.add(new LEDSeqs::Solid("1.*", penta1.getPixels("*"), config));
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.*", penta2.getPixels("*"), config));
+#endif
+        
         config["R"] = "192";
         config["G"] = "0";
         config["B"] = "0";
-        sequences.add(new LEDSeqs::Solid("1.1", penta1.getPixels("P2"), config));
+        sequences.add(new LEDSeqs::Solid("1.1", penta1.getPixels("P1"), config));
 #ifdef DOUBLES_MIRROR
         sequences.add(new LEDSeqs::Solid("2.1", penta2.getPixels("P1"), config));
 #endif
@@ -408,9 +416,9 @@ bool ofApp::setMode(float mode) {
         config["R"] = "192";
         config["G"] = "0";
         config["B"] = "192";
-        sequences.add(new LEDSeqs::Solid("1.2", penta1.getPixels("P4"), config));
+        sequences.add(new LEDSeqs::Solid("1.2", penta1.getPixels("P2"), config));
 #ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.2", penta2.getPixels("P3"), config));
+        sequences.add(new LEDSeqs::Solid("2.2", penta2.getPixels("P2"), config));
 #endif
         
         config["R"] = "0";
@@ -418,15 +426,15 @@ bool ofApp::setMode(float mode) {
         config["B"] = "0";
         sequences.add(new LEDSeqs::Solid("1.3", penta1.getPixels("P3"), config));
 #ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.3", penta2.getPixels("P4"), config));
+        sequences.add(new LEDSeqs::Solid("1.3", penta2.getPixels("P3"), config));
 #endif
         
         config["R"] = "0";
         config["G"] = "192";
         config["B"] = "192";
-        sequences.add(new LEDSeqs::Solid("1.4", penta1.getPixels("P1"), config));
+        sequences.add(new LEDSeqs::Solid("1.4", penta1.getPixels("P4"), config));
 #ifdef DOUBLES_MIRROR
-        sequences.add(new LEDSeqs::Solid("2.4", penta2.getPixels("P2"), config));
+        sequences.add(new LEDSeqs::Solid("2.4", penta2.getPixels("P4"), config));
 #endif
         
         config["R"] = "0";
@@ -436,7 +444,7 @@ bool ofApp::setMode(float mode) {
 #ifdef DOUBLES_MIRROR
         sequences.add(new LEDSeqs::Solid("2.5", penta2.getPixels("P5"), config));
 #endif
-        
+
         cMode = mode;
         modeReps = 1;
         sequences.start();
@@ -545,7 +553,181 @@ bool ofApp::setMode(float mode) {
         return true;
     }
     else if (mode == 4.0) {
-        // 4.0 - POINTS DEMO PATTERN
+        // 4.0 - RED/BLUE STROBE
+        sequences.reset();
+        
+        LEDSeqs::Strobe* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "128";
+        config["G"] = "0";
+        config["B"] = "192";
+        
+        config["R2"] = "192";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        config["R"] = "192";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "128";
+        config["G2"] = "0";
+        config["B2"] = "192";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 1;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 5.0) {
+        // 5.0 - BLUE STROBE
+        sequences.reset();
+        
+        LEDSeqs::Strobe* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "128";
+        config["G"] = "0";
+        config["B"] = "192";
+        
+        config["R2"] = "0";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        config["R"] = "0";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "128";
+        config["G2"] = "0";
+        config["B2"] = "192";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 1;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 6.0) {
+        // 6.0 - RED STROBE
+        sequences.reset();
+        
+        LEDSeqs::Strobe* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "192";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        config["R"] = "192";
+        config["G"] = "0";
+        config["B"] = "0";
+        
+        config["R2"] = "0";
+        config["G2"] = "0";
+        config["B2"] = "0";
+        
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+        
+        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#else
+        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
+        newSequence->setSpeed(&strobeSpeed);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 1;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 7.0) {
+        // 7.0 - FADING POINTS
         sequences.reset();
         
         map<string, string> config;
@@ -608,7 +790,7 @@ bool ofApp::setMode(float mode) {
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #endif
-
+        
         // P4 (green)
         config["startStep"] = "3";
         newSequence = new LEDSeqs::Fade("1.3", penta1.getPixels("P3"), config);
@@ -619,7 +801,7 @@ bool ofApp::setMode(float mode) {
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #endif
-
+        
         // P5 (cyan)
         config["startStep"] = "4";
         newSequence = new LEDSeqs::Fade("1.4", penta1.getPixels("P1"), config);
@@ -630,7 +812,7 @@ bool ofApp::setMode(float mode) {
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #endif
-
+        
         cMode = mode;
         modeReps = 7;
         sequences.start();
@@ -638,182 +820,8 @@ bool ofApp::setMode(float mode) {
         
         return true;
     }
-    else if (mode == 5.0) {
-        // 5.0 - RED/BLUE STROBE
-        sequences.reset();
-        
-        LEDSeqs::Strobe* newSequence;
-        map<string, string> config;
-        
-        config["R"] = "128";
-        config["G"] = "0";
-        config["B"] = "192";
-        
-        config["R2"] = "192";
-        config["G2"] = "0";
-        config["B2"] = "0";
-        
-#ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#endif
-        
-        config["R"] = "192";
-        config["G"] = "0";
-        config["B"] = "0";
-        
-        config["R2"] = "128";
-        config["G2"] = "0";
-        config["B2"] = "192";
-        
-#ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#endif
-        
-        cMode = mode;
-        modeReps = 1;
-        sequences.start();
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
-    else if (mode == 6.0) {
-        // 6.0 - BLUE STROBE
-        sequences.reset();
-        
-        LEDSeqs::Strobe* newSequence;
-        map<string, string> config;
-        
-        config["R"] = "128";
-        config["G"] = "0";
-        config["B"] = "192";
-        
-        config["R2"] = "0";
-        config["G2"] = "0";
-        config["B2"] = "0";
-        
-#ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#endif
-        
-        config["R"] = "0";
-        config["G"] = "0";
-        config["B"] = "0";
-        
-        config["R2"] = "128";
-        config["G2"] = "0";
-        config["B2"] = "192";
-        
-#ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#endif
-        
-        cMode = mode;
-        modeReps = 1;
-        sequences.start();
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
-    else if (mode == 7.0) {
-        // 7.0 - RED STROBE
-        sequences.reset();
-        
-        LEDSeqs::Strobe* newSequence;
-        map<string, string> config;
-        
-        config["R"] = "0";
-        config["G"] = "0";
-        config["B"] = "0";
-        
-        config["R2"] = "192";
-        config["G2"] = "0";
-        config["B2"] = "0";
-        
-#ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::Strobe("1.O", penta1.getPixels("outline"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#endif
-        
-        config["R"] = "192";
-        config["G"] = "0";
-        config["B"] = "0";
-        
-        config["R2"] = "0";
-        config["G2"] = "0";
-        config["B2"] = "0";
-        
-#ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-        
-        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#else
-        newSequence = new LEDSeqs::Strobe("1.C", penta1.getPixels("center"), config);
-        newSequence->setSpeed(&strobeSpeed);
-        sequences.add(newSequence);
-#endif
-        
-        cMode = mode;
-        modeReps = 1;
-        sequences.start();
-        modeSetTime = ofGetElapsedTimeMillis();
-        
-        return true;
-    }
     else if (mode == 8.0) {
-        // 8.0 - TRACER
+        // 8.0 - COLOURFUL TRACER
         sequences.reset();
         
         LEDSeqs::Tracer* newSequence;
@@ -822,7 +830,10 @@ bool ofApp::setMode(float mode) {
         config["R"] = "0.0";
         config["G"] = "0.0";
         config["B"] = "0.0";
-        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("*"), config));
+        sequences.add(new LEDSeqs::Solid("1,BG", penta1.getPixels("*"), config));
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.BG", penta2.getPixels("*"), config));
+#endif
         
         config.clear();
         config["speed"] = "4000.0";
@@ -851,6 +862,11 @@ bool ofApp::setMode(float mode) {
         newSequence = new LEDSeqs::Tracer("1.*", penta1.getPixels("*"), config);
         newSequence->setColors(colors);
         sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.*", penta2.getPixels("*"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
         
         cMode = mode;
         modeReps = 5;
@@ -860,7 +876,7 @@ bool ofApp::setMode(float mode) {
         return true;
     }
     else if (mode == 9.0) {
-        // 9.0 - TRACER
+        // 9.0 - RED TRACER
         sequences.reset();
         
         LEDSeqs::Tracer* newSequence;
@@ -869,7 +885,10 @@ bool ofApp::setMode(float mode) {
         config["R"] = "0.0";
         config["G"] = "0.0";
         config["B"] = "0.0";
-        sequences.add(new LEDSeqs::Solid("1.1BG", penta1.getPixels("*"), config));
+        sequences.add(new LEDSeqs::Solid("1.BG", penta1.getPixels("*"), config));
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.BG", penta2.getPixels("*"), config));
+#endif
         
         config.clear();
         config["speed"] = "2000.0";
@@ -889,9 +908,14 @@ bool ofApp::setMode(float mode) {
         newSequence = new LEDSeqs::Tracer("1.*", penta1.getPixels("*"), config);
         newSequence->setColors(colors);
         sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.*", penta2.getPixels("*"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
         
         cMode = mode;
-        modeReps = 5;
+        modeReps = 3;
         sequences.start();
         modeSetTime = ofGetElapsedTimeMillis();
         
@@ -910,9 +934,15 @@ bool ofApp::setMode(float mode) {
         config["R2"] = "128";
         config["G2"] = "0";
         config["B2"] = "192";
-        LEDSeqs::Strobe* newStrobe = new LEDSeqs::Strobe("1.*-strobe", penta1.getPixels("*"), config);
+        LEDSeqs::Strobe* newStrobe;
+        newStrobe = new LEDSeqs::Strobe("1.Strobe", penta1.getPixels("*"), config);
         newStrobe->setSpeed(&strobeSpeed);
         sequences.add(newStrobe);
+#ifdef DOUBLES_MIRROR
+        newStrobe = new LEDSeqs::Strobe("2.Strobe", penta2.getPixels("*"), config);
+        newStrobe->setSpeed(&strobeSpeed);
+        sequences.add(newStrobe);
+#endif
         
         config.clear();
         config["speed"] = "2000.0";
@@ -932,6 +962,161 @@ bool ofApp::setMode(float mode) {
         newSequence = new LEDSeqs::Tracer("1.*", penta1.getPixels("*"), config);
         newSequence->setColors(colors);
         sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.*", penta2.getPixels("*"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 2;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 11.0) {
+        // 11.0 - OUTLINE TRACER
+        sequences.reset();
+        
+        LEDSeqs::Tracer* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0.0";
+        config["G"] = "0.0";
+        config["B"] = "0.0";
+        sequences.add(new LEDSeqs::Solid("1.BG", penta1.getPixels("*"), config));
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.BG", penta2.getPixels("*"), config));
+#endif
+        
+        vector<LEDSeqs::Tracer::ColorStep> colors;
+        
+        config.clear();
+        config["speed"] = "1000.0";
+        config["length"] = "20";
+        
+        colors.push_back({
+            ofColor(0, 192, 192, 192), false,
+            0.75
+        });
+        colors.push_back({
+            ofColor(0, 0, 0, 0), false,
+            1.0
+        });
+        newSequence = new LEDSeqs::Tracer("1.C-B", penta1.getPixels("C"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.C-B", penta2.getPixels("C"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
+        
+        config.clear();
+        colors.clear();
+        
+        config["speed"] = "5000.0";
+        config["length"] = "100";
+        //config["loopMode"] = "TAIL";
+        
+        colors.push_back({
+            ofColor(0, 192, 255, 192), false,
+            0.75
+        });
+        colors.push_back({
+            ofColor(0, 0, 0, 0), false,
+            1.0
+        });
+        newSequence = new LEDSeqs::Tracer("1.O-B", penta1.getPixels("O"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.O-B", penta2.getPixels("O"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
+        
+        cMode = mode;
+        modeReps = 5;
+        sequences.start();
+        modeSetTime = ofGetElapsedTimeMillis();
+        
+        return true;
+    }
+    else if (mode == 12.0) {
+        // 12.0 - POINTS TRACERS
+        sequences.reset();
+        
+        LEDSeqs::Tracer* newSequence;
+        map<string, string> config;
+        
+        config["R"] = "0.0";
+        config["G"] = "0.0";
+        config["B"] = "0.0";
+        sequences.add(new LEDSeqs::Solid("1.BG", penta1.getPixels("*"), config));
+#ifdef DOUBLES_MIRROR
+        sequences.add(new LEDSeqs::Solid("2.BG", penta2.getPixels("*"), config));
+#endif
+        
+        config.clear();
+        config["speed"] = "1000.0";
+        config["length"] = "16";
+        //config["loopMode"] = "TAIL";
+        
+        vector<LEDSeqs::Tracer::ColorStep> colors;
+        colors.push_back({
+            ofColor(0, 255, 128, 192), false,
+            0.75
+        });
+        colors.push_back({
+            ofColor(0, 0, 0, 0), false,
+            1.0
+        });
+        newSequence = new LEDSeqs::Tracer("1.P1", penta1.getPixels("P1"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.P1", penta2.getPixels("P1"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
+        
+        newSequence = new LEDSeqs::Tracer("1.P2", penta1.getPixels("P2"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.P2", penta2.getPixels("P2"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
+        
+        newSequence = new LEDSeqs::Tracer("1.P3", penta1.getPixels("P3"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.P3", penta2.getPixels("P3"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
+        
+        newSequence = new LEDSeqs::Tracer("1.P4", penta1.getPixels("P4"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.P4", penta2.getPixels("P4"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
+        
+        newSequence = new LEDSeqs::Tracer("1.P5", penta1.getPixels("P5"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#ifdef DOUBLES_MIRROR
+        newSequence = new LEDSeqs::Tracer("2.P5", penta2.getPixels("P5"), config);
+        newSequence->setColors(colors);
+        sequences.add(newSequence);
+#endif
         
         cMode = mode;
         modeReps = 5;
