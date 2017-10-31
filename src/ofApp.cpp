@@ -8,12 +8,12 @@ void ofApp::setup(){
     fc.setup("127.0.0.1", 7890);
     
     penta1.setup(&fc, 0, 16);
-    penta1.setLayout(150, 100, 300);
+    penta1.setLayout(150, 150, 300);
     ledRender.addPixels(penta1.getPixels());
     
 #ifdef DOUBLES_MIRROR
     penta2.setup(&fc, 128, 16, true);
-    penta2.setLayout(550, 100, 300);
+    penta2.setLayout(550, 150, 300);
     ledRender.addPixels(penta2.getPixels());
 #endif
     

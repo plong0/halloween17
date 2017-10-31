@@ -268,9 +268,40 @@ void Pentagram::setLayout(float x, float y, float stripLength) {
         for (int i=0; i < 5; i++) {
             strips[i]->setLayout(layout.x, layout.y + 50*(i + 0.5), layout.stripLength);
         }
-        /**
-        float stripWidth = layout.height / 5;
-         */
+        
+        float width = layout.stripLength;
+        float height = layout.stripLength * cos(18.0 * M_PI / 180.0);
+        ofVec2f center(width/2.0, height/2.0);
+        
+        ofPoint point;
+        float cAngle;
+        
+        point.set(center.x, height);
+        cAngle = mirror ? -108.0 : -72.0;
+        strips[mirror ? 4 : 0]->setLayout(layout.x+point.x, layout.y+point.y, layout.stripLength, cAngle);
+        
+        point.x += cos(cAngle * M_PI / 180.0) * stripLength;
+        point.y += sin(cAngle * M_PI / 180.0) * stripLength;
+        cAngle = mirror ? 36.0 : 144.0;
+        strips[mirror ? 3 : 1]->setLayout(layout.x+point.x, layout.y+point.y, layout.stripLength, cAngle, mirror);
+        
+        point.x += cos(cAngle * M_PI / 180.0) * stripLength;
+        point.y += sin(cAngle * M_PI / 180.0) * stripLength;
+        cAngle = mirror ? 180.0 : 0.0;
+        strips[mirror ? 2 : 2]->setLayout(layout.x+point.x, layout.y+point.y, layout.stripLength, cAngle, mirror);
+        
+        point.x += cos(cAngle * M_PI / 180.0) * stripLength;
+        point.y += sin(cAngle * M_PI / 180.0) * stripLength;
+        cAngle = mirror ? -36.0 : -144.0;
+        strips[mirror ? 1 : 3]->setLayout(layout.x+point.x, layout.y+point.y, layout.stripLength, cAngle, mirror);
+        
+        point.x += cos(cAngle * M_PI / 180.0) * stripLength;
+        point.y += sin(cAngle * M_PI / 180.0) * stripLength;
+        cAngle = mirror ? 108.0 : 72.0;
+        point.x += cos(cAngle * M_PI / 180.0) * stripLength;
+        point.y += sin(cAngle * M_PI / 180.0) * stripLength;
+        cAngle -= 180.0;
+        strips[mirror ? 0 : 4]->setLayout(layout.x+point.x, layout.y+point.y, layout.stripLength, cAngle);
     }
 }
 

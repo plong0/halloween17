@@ -8,7 +8,7 @@
 #define AUDIO_ENABLED 1
 //#define AUDIO_FFT_ENABLED 1
 
-#include "LEDSeqs.h"
+#include "Sequences/LEDSeqs.h"
 
 #define MIN_MODE 7.0
 #define MAX_MODE 12.0
