@@ -158,6 +158,11 @@ void ofApp::draw(){
     str.str("");
     str.clear();
 #endif
+    
+    str << ofGetFrameRate() << " fps";
+    ofDrawBitmapString(str.str(), ofGetWidth() - 100.0, 25.0);
+    str.str("");
+    str.clear();
 }
 
 #ifdef AUDIO_ENABLED
