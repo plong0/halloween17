@@ -572,7 +572,7 @@ bool ofApp::setMode(float mode) {
         newSequence->setSpeed(&strobeSpeed);
         sequences.add(newSequence);
         
-        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
+        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
         newSequence->setSpeed(&strobeSpeed);
         sequences.add(newSequence);
 #else
@@ -594,7 +594,7 @@ bool ofApp::setMode(float mode) {
         newSequence->setSpeed(&strobeSpeed);
         sequences.add(newSequence);
         
-        newSequence = new LEDSeqs::Strobe("2.C", penta2.getPixels("center"), config);
+        newSequence = new LEDSeqs::Strobe("2.O", penta2.getPixels("outline"), config);
         newSequence->setSpeed(&strobeSpeed);
         sequences.add(newSequence);
 #else
@@ -760,7 +760,7 @@ bool ofApp::setMode(float mode) {
         
         // P1 (red)
         config["startStep"] = "0";
-        newSequence = new LEDSeqs::Fade("1.1", penta1.getPixels("P2"), config);
+        newSequence = new LEDSeqs::Fade("1.1", penta1.getPixels("P1"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #ifdef DOUBLES_MIRROR
@@ -771,29 +771,29 @@ bool ofApp::setMode(float mode) {
         
         // P2 (purple)
         config["startStep"] = "1";
-        newSequence = new LEDSeqs::Fade("1.2", penta1.getPixels("P4"), config);
+        newSequence = new LEDSeqs::Fade("1.2", penta1.getPixels("P2"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Fade("2.2", penta2.getPixels("P3"), config);
+        newSequence = new LEDSeqs::Fade("2.2", penta2.getPixels("P2"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #endif
         
         // P3 (blue)
         config["startStep"] = "2";
-        newSequence = new LEDSeqs::Fade("1.5", penta1.getPixels("P5"), config);
+        newSequence = new LEDSeqs::Fade("1.5", penta1.getPixels("P3"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Fade("2.5", penta2.getPixels("P5"), config);
+        newSequence = new LEDSeqs::Fade("2.5", penta2.getPixels("P3"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #endif
         
         // P4 (green)
         config["startStep"] = "3";
-        newSequence = new LEDSeqs::Fade("1.3", penta1.getPixels("P3"), config);
+        newSequence = new LEDSeqs::Fade("1.3", penta1.getPixels("P4"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #ifdef DOUBLES_MIRROR
@@ -804,11 +804,11 @@ bool ofApp::setMode(float mode) {
         
         // P5 (cyan)
         config["startStep"] = "4";
-        newSequence = new LEDSeqs::Fade("1.4", penta1.getPixels("P1"), config);
+        newSequence = new LEDSeqs::Fade("1.4", penta1.getPixels("P5"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #ifdef DOUBLES_MIRROR
-        newSequence = new LEDSeqs::Fade("2.4", penta2.getPixels("P2"), config);
+        newSequence = new LEDSeqs::Fade("2.4", penta2.getPixels("P5"), config);
         newSequence->setFadeSteps(steps);
         sequences.add(newSequence);
 #endif
