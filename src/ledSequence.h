@@ -14,7 +14,7 @@
 class ledSequence {
 public:
     ledSequence(string id, vector<ledPixel*> pixels, map<string, string> config, bool autoStart=false);
-    ~ledSequence();
+    virtual ~ledSequence();
     
     virtual string getName()=0;
     string getID();

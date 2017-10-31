@@ -28,7 +28,7 @@ public:
     ledSequence* get(string id);
     
 protected:
-    set<ledSequence*> seqs;
+    deque<ledSequence*> seqs;
 
 };
 
