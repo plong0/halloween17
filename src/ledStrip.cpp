@@ -47,7 +47,7 @@ void ledStrip::setColor(ofColor color) {
     }
 }
 
-void ledStrip::setLayout(float x, float y, float length, float angle, float spacing, float width) {
+void ledStrip::setLayout(float x, float y, float length, float angle, bool invert, float spacing, float width) {
     layout.x = x;
     layout.y = y;
     layout.width = width;
@@ -74,8 +74,9 @@ void ledStrip::setLayout(float x, float y, float length, float angle, float spac
     float cY = y + (sinTheta * pixelWidth/2.0);
     
     for (int i=0; i < pixels.size(); i++) {
-        if (pixels[i]) {
-            pixels[i]->setLayout(cX, cY, pixelRadius);
+        int index = invert ? (pixels.size()-1-i) : i;
+        if (pixels[index]) {
+            pixels[index]->setLayout(cX, cY, pixelRadius);
         }
         cX += cosTheta * pixelWidth;
         cY += sinTheta * pixelWidth;

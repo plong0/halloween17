@@ -31,7 +31,7 @@ public:
         float angle;
         float spacing;
     } layout;
-    void setLayout(float x=0.0, float y=0.0, float length=200.0, float angle=0.0, float spacing=0.25, float width=25.0);
+    void setLayout(float x=0.0, float y=0.0, float length=200.0, float angle=0.0, bool invert=false, float spacing=0.25, float width=25.0);
     
 protected:
     Fadecandy* fadecandy;
